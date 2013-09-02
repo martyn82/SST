@@ -104,4 +104,10 @@ removeFst x []	   = []
 removeFst x (y:ys) | x == y	 = ys
 		   | otherwise   = y : removeFst x ys
 
+-- Ex.1.13 Counting number of occurrences of character within a string.
+count :: Char -> String -> Int
+count x []     = 0
+count x (y:ys) | x == y		= 1 + count x ys
+	       | otherwise	= 0 + count x ys
+
 
