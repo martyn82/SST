@@ -30,7 +30,7 @@ mnmInt (x:xs) = min x (mnmInt xs)
 
 min' :: Int -> Int -> Int 
 min' x y | x <= y    = x
-         | otherwise = y 
+         | otherwise = y
 
 average :: [Int] -> Rational
 average [] = error "empty list" 
@@ -89,4 +89,19 @@ h1 x = 2 * (h1 x)
 h2 :: Integer -> Integer 
 h2 0 = 0
 h2 x = h2 (x+1) 
+
+-- Exercises continued
+
+-- Ex.1.9 Define function for getting maximum of a list of integers
+maxInt :: [Int] -> Int
+maxInt [] 	= error "empty list"
+maxInt [x] 	= x
+maxInt (x:xs) 	= max x (maxInt xs)
+
+-- Ex.1.10 removeFst removes the first occurrence of an integer m from a list of integers.
+removeFst :: Int -> [Int] -> [Int]
+removeFst x []	   = []
+removeFst x (y:ys) | x == y	 = ys
+		   | otherwise   = y : removeFst x ys
+
 
