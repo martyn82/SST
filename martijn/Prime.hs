@@ -23,8 +23,16 @@ count x []     = 0
 count x (y:ys) | x == y		= 1 + count x ys
 	       | otherwise	= 0 + count x ys
 
+-- Ex.1.14 Blowup
 blowup :: String -> String
 blowup xs = blowup' xs 1
 	where blowup' [] _     = []
               blowup' (x:xs) n =  take n (repeat x) ++ blowup' xs (n+1)
+
+-- Ex.1.15 Sort a list of strings alphabetically
+srtString :: [String] -> [String]
+srtString []      = []
+srtString (x:xs)  = srtString small ++ (x : srtString large)
+	where small = [y | y <- xs, y <= x]
+              large = [y | y <- xs, y > x]
 
