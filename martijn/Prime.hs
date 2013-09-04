@@ -36,3 +36,12 @@ srtString (x:xs)  = srtString small ++ (x : srtString large)
 	where small = [y | y <- xs, y <= x]
               large = [y | y <- xs, y > x]
 
+-- Ex.1.17 Substring determines whether a string is a substring of another
+prefix :: String -> String -> Bool
+prefix [] ys         = True
+prefix (x:xs) []     = False
+prefix (x:xs) (y:ys) = (x==y) && prefix xs ys
+
+substring :: String -> String -> Bool
+substring xs [] = False
+substring xs (y:ys) = prefix xs (y:ys) || substring xs ys
