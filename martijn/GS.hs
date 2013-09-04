@@ -9,19 +9,13 @@ ld n = ldf 2 n
 
 ldf :: Integer -> Integer -> Integer
 ldf k n | divides k n = k
-	| k^2 > n     = n		-- Ex.1.4 it does not make any difference whether to specify > or >= because if k^2 == n, then k divides n
+	| k^2 > n     = n
 	| otherwise   = ldf (k+1) n
 
 prime0 :: Integer -> Bool
 prime0 n | n < 1	= error "not a positive integer"
 	 | n == 1	= False
 	 | otherwise	= ld n == n
-
--- Ex.1.6 type declaration of rem :: Integer -> Integer -> Integer
--- Ex.1.7 :t divides 5 :: Integer -> Bool ; :t divides 5 7 :: Bool ; probably because we've substituted variables for constants
-
-
--- GS.hs from book website
 
 mnmInt :: [Int] -> Int
 mnmInt [] = error "empty list" 
@@ -89,25 +83,4 @@ h1 x = 2 * (h1 x)
 h2 :: Integer -> Integer 
 h2 0 = 0
 h2 x = h2 (x+1) 
-
--- Exercises continued
-
--- Ex.1.9 Define function for getting maximum of a list of integers
-maxInt :: [Int] -> Int
-maxInt [] 	= error "empty list"
-maxInt [x] 	= x
-maxInt (x:xs) 	= max x (maxInt xs)
-
--- Ex.1.10 removeFst removes the first occurrence of an integer m from a list of integers.
-removeFst :: Int -> [Int] -> [Int]
-removeFst x []	   = []
-removeFst x (y:ys) | x == y	 = ys
-		   | otherwise   = y : removeFst x ys
-
--- Ex.1.13 Counting number of occurrences of character within a string.
-count :: Char -> String -> Int
-count x []     = 0
-count x (y:ys) | x == y		= 1 + count x ys
-	       | otherwise	= 0 + count x ys
-
 
