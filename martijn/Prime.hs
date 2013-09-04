@@ -45,3 +45,29 @@ prefix (x:xs) (y:ys) = (x==y) && prefix xs ys
 substring :: String -> String -> Bool
 substring xs [] = False
 substring xs (y:ys) = prefix xs (y:ys) || substring xs ys
+
+-- Ex.1.18 Typed expressions
+-- :t ["a","b"] :: [String]
+-- :t (True,"a") :: (Bool,String)
+-- :t [(True,"a")] :: [(Bool,String)]
+-- :t ([True],"a") :: ([Bool],String)
+-- :t \True -> False :: Bool -> Bool
+
+-- Ex.1.19 Find types (type of)
+-- :t head :: [a] -> a
+-- :t last :: [a] -> a
+-- :t init :: [a] -> [a]
+-- :t fst  :: (a,b) -> a
+-- :t (++) :: [a] -> [a] -> [a]
+-- :t flip :: (a -> b -> c) -> b -> a -> c
+-- :t flip(++) :: [a] -> [a] -> [a]
+
+-- head [1,2,3] = 1
+-- last [1,2,3] = 3
+-- init [1,2,3] = [1,2]
+-- fst  (1,2) = 1
+-- (++) [1,2] [3] = [1,2,3]
+-- flip (>) 2 3 = True // flip (<) 2 3 = False
+-- flip (++) [2] [3] = [3,2]
+
+
