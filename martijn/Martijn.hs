@@ -1,6 +1,8 @@
 module Martijn
 where
 
+import GS
+
 -- Ex.1.4 it does not make any difference whether to specify > or >= because if k^2 == n, then k divides n
 -- Ex.1.6 type declaration of rem :: Integer -> Integer -> Integer
 -- Ex.1.7 :t divides 5 :: Integer -> Bool ; :t divides 5 7 :: Bool ; probably because we've substituted variables for constants
@@ -37,11 +39,6 @@ srtString (x:xs)  = srtString small ++ (x : srtString large)
               large = [y | y <- xs, y > x]
 
 -- Ex.1.17 Substring determines whether a string is a substring of another
-prefix :: String -> String -> Bool
-prefix [] ys         = True
-prefix (x:xs) []     = False
-prefix (x:xs) (y:ys) = (x==y) && prefix xs ys
-
 substring :: String -> String -> Bool
 substring xs [] = False
 substring xs (y:ys) = prefix xs (y:ys) || substring xs ys
