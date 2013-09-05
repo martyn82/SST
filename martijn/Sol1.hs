@@ -1,3 +1,3 @@
 module Sol1 where
 
-import Prime
+import Martijn

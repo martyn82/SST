@@ -1,4 +1,4 @@
-module Prime
+module Martijn
 where
 
 -- Ex.1.4 it does not make any difference whether to specify > or >= because if k^2 == n, then k divides n
