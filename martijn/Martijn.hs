@@ -67,4 +67,17 @@ substring xs (y:ys) = prefix xs (y:ys) || substring xs ys
 -- flip (>) 2 3 = True // flip (<) 2 3 = False
 -- flip (++) [2] [3] = [3,2]
 
+-- Ex.1.20 Map list of lists to a list of their corresponding lenghts
+lengths :: [[a]] -> [Int]
+lengths []     = []
+lengths (x:xs) = length' x : map length' xs
+           where length' []     = 0
+                 length' (y:ys) = 1 + length' ys
+
+-- Ex.1.21 Return the sum of the lengths of input lists
+sumLengths :: [[a]] -> Int
+sumLengths []     = 0
+sumLengths (x:xs) = length' x + sumLengths xs
+              where length' []     = 0
+                    length' (y:ys) = 1 + length' ys
 
