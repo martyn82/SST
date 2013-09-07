@@ -1,4 +1,4 @@
-module Martijn
+module Martijn_GS
 where
 
 import GS
@@ -74,10 +74,14 @@ lengths (x:xs) = length' x : map length' xs
            where length' []     = 0
                  length' (y:ys) = 1 + length' ys
 
--- Ex.1.21 Return the sum of the lengths of input lists
+-- Ex.1.21 Return the sum of the lengths of input lists using map
 sumLengths :: [[a]] -> Int
 sumLengths []     = 0
 sumLengths (x:xs) = length' x + sumLengths xs
               where length' []     = 0
                     length' (y:ys) = 1 + length' ys
+
+-- Ex.1.24 Modifying ldp definition without argument perhaps passes argument through automatically
+ldp :: Integer -> Integer
+ldp = ldpf primes1
 

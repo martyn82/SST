@@ -1,3 +1,3 @@
 module Sol1 where
 
-import Martijn
+import Martijn_GS
