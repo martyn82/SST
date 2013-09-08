@@ -1,21 +1,22 @@
-module GS
-where
+module GS 
+
+where 
 
 divides :: Integer -> Integer -> Bool
 divides d n = rem n d == 0
 
-ld :: Integer -> Integer
-ld n = ldf 2 n
+ld :: Integer -> Integer 
+ld n = ldf 2 n 
 
-ldf :: Integer -> Integer -> Integer
-ldf k n | divides k n = k
-	| k^2 > n     = n
-	| otherwise   = ldf (k+1) n
+ldf :: Integer -> Integer -> Integer 
+ldf k n | divides k n = k 
+        | k^2 >  n    = n 
+        | otherwise   = ldf (k+1) n
 
 prime0 :: Integer -> Bool
-prime0 n | n < 1	= error "not a positive integer"
-	 | n == 1	= False
-	 | otherwise	= ld n == n
+prime0 n | n < 1     = error "not a positive integer"
+         | n == 1    = False 
+         | otherwise = ld n == n
 
 mnmInt :: [Int] -> Int
 mnmInt [] = error "empty list" 
@@ -24,7 +25,7 @@ mnmInt (x:xs) = min x (mnmInt xs)
 
 min' :: Int -> Int -> Int 
 min' x y | x <= y    = x
-         | otherwise = y
+         | otherwise = y 
 
 average :: [Int] -> Rational
 average [] = error "empty list" 
@@ -74,7 +75,7 @@ f x y = x^2 + y^2
 
 g :: Integer -> Integer 
 g 0     = 0
-g x     = 2 * (g (x+1)) 
+g (x+1) = 2 * (g x) 
 
 h1 :: Integer -> Integer 
 h1 0 = 0
@@ -83,4 +84,3 @@ h1 x = 2 * (h1 x)
 h2 :: Integer -> Integer 
 h2 0 = 0
 h2 x = h2 (x+1) 
-
