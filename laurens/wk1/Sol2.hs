@@ -37,3 +37,18 @@ test_2_20_4 = lequiv (\p q r -> p ==> (q ==> r)) (\p q r -> q ==> (p ==> r))
 test_2_20_5 = lequiv (\p q r -> p ==> (q ==> r)) (\p q r -> (p ==> q) ==> r)
 test_2_20_6 = lequiv (\p q -> (p ==> q) ==> p) (\p _ -> p)
 test_2_20_7 = lequiv (\p q r -> p || q ==> r) (\p q r -> (p ==> r) && (q ==> r))
+
+-- 2.51
+unique :: (a -> Bool) -> [a] -> Bool
+unique p = xor . map p
+
+xor :: [Bool] -> Bool
+xor = foldr (<+>) False
+
+-- 2.52
+parity :: [Bool] -> Bool
+parity = even . length . filter (\x -> x)
+
+-- 2.53
+evenNR :: (a -> Bool) -> [a] -> Bool
+evenNR p = parity . map p
