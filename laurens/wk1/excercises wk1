@@ -1,13 +1,34 @@
-1.4: Changing the condition to k^2 >= n would not make a difference.
+1.4: 	Changing the condition to k^2 >= n would not make a difference.
 
 if k * k == n than divides k n is true (since k is a natural number) so the program would return in the first guard.
 
-1.6: Integer -> Integer -> Integer
+1.6: 	Integer -> Integer -> Integer
 because n, d are integers in divides and because the == 0 check, looks for equality to a number. 
 
-1.7: Because divides has type: Integer -> Integer -> Bool, which is short for Integer -> (Integer -> Bool), we can understand that the type of "divides 5" is a function that maps Integer to Bool
+1.7: 	Because divides has type: Integer -> Integer -> Bool, which is short for Integer -> (Integer -> Bool), we can understand that the type of "divides 5" is a function that maps Integer to Bool
 
 when we ask for the type of "divides 5 7" we get the result type of the Integer -> Bool, a Bool.
 
+1.18:	1. ["a", "b"]
+	2. (True, "a")
+	3. [(True, "a"), (False, "b")]
+	4. ([False, True], "a")
+	5. True &&
 
+1.19:	1. head :: [a] -> a
+	2. last :: [a] -> a
+	3. init :: [a] -> [a]
+	4. fst :: (a, b) -> a
+	5. (++) :: [a] -> [a] -> [a]
+	6. flip :: (a -> b -> c) -> b -> a -> c
+	7. flip (++) :: [a] -> [a] -> [a]
 
+	1. Get first element
+	2. Get last element
+	3. Get all but last element
+	4. Take first from tuple
+	5. Concat lists
+	6. Changes a function from a to b to c into a function from b to a to c
+	7. Concats the list the other way round, not a + b but b + a.
+
+1.24:	ldp becomes a call to ldpf primes1, therefor stating "lpd n" actually is executed as "ldpf primes 1 n"
