@@ -81,6 +81,14 @@ carl = \ x -> not (arnold x)
 declarations = [matthew,peter,jack,arnold,carl]
 table = zip declarations boys
 
+t = True
+f = False
+
+permutations = filter (\x -> length (filter (\y -> y) x) == 3) [[v,w,x,y,z] | v <- [t,f], w <- [t,f], x <- [t,f], y <- [t,f], z <- [t,f]]
+
+permutations2 = map (\x -> (zip x declarations)) permutations
+
+
 
 
 --Now write a function solution that lists the boys that could have
