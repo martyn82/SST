@@ -29,7 +29,7 @@ import TAMO
 -- only yields TRUE whenever the propositions are inequal and will again produce
 -- the same truth table.
 
--- Ex.2.9 Truth table showing equivalence of (P xor Q) xor Q with P
+-- Ex.2.9 Truth table showing equivalence of ((P xor Q) xor Q) and P
 -- ---------------------------
 -- | P | Q | (P xor Q) xor Q |
 -- +-------------------------+
@@ -39,7 +39,7 @@ import TAMO
 -- | f | f |            f    |
 -- ---------------------------
 
--- Ex.2.11 (non)
+-- Ex.2.11: -
 
 -- Ex.2.13 Checks for principles of Theorem 2.12
 theorem1a = (not True)
@@ -53,14 +53,15 @@ theorem5  = lequiv (\ p -> (p || (not p))) (\ p -> (True))
 theorem6  = lequiv (\ p -> (p && (not p))) (\ p -> (False))
 
 -- Ex.2.15 Contradictions
-contra1a = p && (not p)
-contra1b p = p <=> (not p)
-contra2a p q = (p && (not p)) && (q && (not q))
-contra3a p q r = ((p <=> (not p)) && (q <=> (not q))) && (r && (not r))
+contra1a = lequiv (\ p -> False) (\ p -> (p && (not p)))
+contra1b = lequiv (\ p -> False) (\ p -> (p <=> (not p)))
+contra2a = lequiv (\ p q -> False) (\ p q -> ((p && (not p)) && (q && (not q))))
+contra3a = lequiv (\ p q r -> False) (\ p q r -> (((p <=> (not p)) && (q <=> (not q))) && (r && (not r))))
 
--- Ex.2.16 (?)
+-- Ex.2.16 Denials for 2.13
+-- Don't know what is expected. We could easily wrap each formula in a NOT operator, but would that be 'useful'?
 
--- Ex.2.17 
+-- Ex.2.17 (?)
 
 -- Ex.2.18 
 ex218a = lequiv (\ p q -> (p <=> q)) (\ p q -> ((not p) <=> (not q)))
@@ -201,7 +202,49 @@ ex219 = (valid (\ p q -> p <=> q)) <=> (lequiv p q)
 -- 5. a) yes, b) yes, c) yes, d) yes, e) yes, f) yes
 
 -- Ex.2.38
+-- 1. a) yes, b) yes, c) yes, d) yes, e) yes, f) yes
+-- 2. a) yes, b) yes, c) yes, d) no, e) yes, f) yes
+-- 3. a) yes, b) yes, c) yes, d) no, e) no, f) yes
+-- 4. a) yes, b) yes, c) yes, d) no, e) no, f) no
+-- 5. a) 
 
 -- Ex.2.39: The <=> operator is the equivalence operator. So when two formulas have the same truth table, they are by definition equivalent.
 
+-- Ex.2.41
+-- 1. AxeR!(x^2=5)
+-- 2. EneNEmeN!(n<m)
+-- 3. EneN!EdeN!(1<d<(2^n+1)^d(2^n+1))
+-- 4. EneNEmeN!(n<m^ApeN(p<nvm<p))
+
+-- Ex.2.46
+-- The formula !ExeAPx states that there is no element x in set A for which holds that P
+-- The formula ExneAPx states that there is an x that is not an element of set A for which holds that P
+-- These formulas are fundamentally different in the way that the first one says that there is no x as an element of A, but probably of another set, and the
+-- second one says that x is not an element of A.
+-- However, they are equivalent in truth values for any given value of Px and any x.
+
+-- Assumed that Px is true:
+-- If we take x as a member of set B (explicitly not of A): both formulas are true.
+-- If we take x as a member of set A: both formulas are false.
+
+-- Assumed that Px is false:
+-- If x is not a member of A: both formulas are false
+-- If x is is a member of A: both formulas are false
+
+-- Therefore, they are equivalent.
+
+-- Ex.2.47
+-- ExneA!Px states that there is an x not a member of A for which holds that not Px
+-- ExeA!Px states that there is a member of A for which holds that not Px
+-- These formulas are not equivalent. If Px is false, and if x is a member of A, then the first formula is false and the second is true.
+
+-- Ex.2.48
+
+-- Ex.2.50
+
+-- Ex.2.51
+
+-- Ex.2.52
+
+-- Ex.2.53
 
