@@ -3,7 +3,7 @@ module Sol2 where
 import TAMO
 
 -- 2.9
-isTwoDotNineValid = valid2 (\p q -> ((p <+> q) <+> q) <=> p)
+test2_9 = valid2 (\p q -> ((p <+> q) <+> q) <=> p)
 
 -- 2.13
 test2_12_1a = lequiv (not True) False
