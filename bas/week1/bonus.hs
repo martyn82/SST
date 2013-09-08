@@ -81,15 +81,28 @@ carl = \ x -> not (arnold x)
 declarations = [matthew,peter,jack,arnold,carl]
 table = zip declarations boys
 
-t = True
-f = False
+tf = [True, False]
 
-permutations = filter (\x -> length (filter (\y -> y) x) == 3) [[v,w,x,y,z] | v <- [t,f], w <- [t,f], x <- [t,f], y <- [t,f], z <- [t,f]]
+permutations = filter (\x -> length (filter (\y -> y) x) == 2) [[v,w,x,y,z] | v <- tf, w <- tf, x <- tf, y <- tf, z <- tf]
 
-permutations2 = map (\x -> (zip x declarations)) permutations
+checkStatements :: [(Bool, (Boy -> Bool), Boy)] -> Bool
+checkStatements xs = and (map (\(liar, p, b) -> (checkStatement liar (p b))) xs)
 
+checkStatement :: Bool -> Bool -> Bool
+checkStatement liar value | liar    = not value
+                          | otherwise = value
 
+permutations2 :: [([Bool],Bool, Boy)]
+permutations2 =	[(liarSetup, checkStatements (zip3 liarSetup declarations (take 5 (repeat target))), target) | liarSetup <- permutations, target <- boys]
 
+solved = map (\(x,_,y) -> (x, y)) (filter (\(_,x,_) -> x) permutations2)
+
+fst3 (x,y,z) = x
+lst3 (x,y,z) = z
+
+honest = (map snd (filter (\x -> not (fst x)) (zip (fst (head solved)) boys)))
+
+solution = snd (head solved)
 
 --Now write a function solution that lists the boys that could have
 --done it, and a function honest that lists the boys that have made
