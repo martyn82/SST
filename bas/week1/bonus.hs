@@ -37,7 +37,7 @@ data Creature = Lady | Tiger
 
 sign1, sign2 :: (Creature,Creature) -> Bool
 sign1 (x,y) = x == Lady || y == Lady
-sign2 (x,y) = y == Tiger
+sign2 (x,y) = x == Tiger
 
 solution2 :: [(Creature,Creature)]
 solution2 = [ (x,y) | x <- [Lady,Tiger], y <- [Lady,Tiger], sign1 (x,y) == sign2 (x,y) ]
@@ -55,3 +55,35 @@ solution3 = [(x,y) | x <- [Knight,Knave],
                      john (x,y) == (x == Knight) && bill(x,y) == (y == Knight)]
 --In this puzzle, again John is on the left, Bill on the right. John says: “We are both
 --of the same kind.” Bill says: “We are both of different kinds.” Who is what?
+
+--exercise 6
+--solution: (Lady,Tiger)
+
+-- signs are both correct or both incorrect
+-- sign 1 says: if this room has a tiger, the other room has a lady
+-- sign 2 says: this room has a tiger
+solution6 :: [(Creature,Creature)]
+sign1a (x,y) = (x == Tiger) <= (y == Lady)
+sign2a (x,y) = y == Tiger
+solution6 = [ (x,y) | x <- [Lady,Tiger], y <- [Lady,Tiger], sign1a (x,y) == sign2a (x,y) ]
+
+--exercise 7
+
+data Boy = Matthew | Peter | Jack | Arnold | Carl
+		deriving (Eq,Show)
+boys = [Matthew, Peter, Jack, Arnold, Carl]
+matthew, peter, jack, arnold, carl :: Boy -> Bool
+matthew = \ x -> not (x==Matthew) && not (x==Carl)
+peter = \ x -> x==Matthew || x==Jack
+jack = \ x -> not (matthew x) && not (peter x)
+arnold = \ x -> matthew x /= peter x
+carl = \ x -> not (arnold x)
+declarations = [matthew,peter,jack,arnold,carl]
+table = zip declarations boys
+
+
+
+--Now write a function solution that lists the boys that could have
+--done it, and a function honest that lists the boys that have made
+-- honest declarations, for each member of the solution list.
+
