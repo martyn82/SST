@@ -1,0 +1,13 @@
+1.4: Changing the condition to k^2 >= n would not make a difference.
+
+if k * k == n than divides k n is true (since k is a natural number) so the program would return in the first guard.
+
+1.6: Integer -> Integer -> Integer
+because n, d are integers in divides and because the == 0 check, looks for equality to a number. 
+
+1.7: Because divides has type: Integer -> Integer -> Bool, which is short for Integer -> (Integer -> Bool), we can understand that the type of "divides 5" is a function that maps Integer to Bool
+
+when we ask for the type of "divides 5 7" we get the result type of the Integer -> Bool, a Bool.
+
+
+
