@@ -243,8 +243,13 @@ ex219 = (valid (\ p q -> p <=> q)) <=> (lequiv p q)
 -- Ex.2.50
 
 -- Ex.2.51
+unique :: (a -> Bool) -> [a] -> Bool
+unique p xs = length (filter p xs) == 1
 
 -- Ex.2.52
+parity :: [Bool] -> Bool
+parity xs = mod (length (filter (\ x -> x) xs)) 2 == 0
 
 -- Ex.2.53
-
+evenNR :: (a -> Bool) -> [a] -> Bool
+evenNR p xs = parity (map p xs)
