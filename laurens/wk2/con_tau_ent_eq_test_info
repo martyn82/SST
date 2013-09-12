@@ -1,0 +1,51 @@
+As satisfiability was allready given, I did not check that. But used the idea to create the methods of contradiction, tautology, logical entailment and logical equivalence.
+
+--- Contradiction
+Contradiction is created and checked as mentioned in the sheets:
+if p is not satisfiable, then p is a contradiction (We can proof this, but it seems trivial to me.)
+
+I've checked the contradiction definition by the other line in the sheets:
+if p is a tautology, then not p is a contradiction.
+An example of this: tautology (Dsj [p, (Neg p)]) --> True, therefor
+contradiction (Neg (Dsj [p, (Neg p)])) --> True.
+
+--- Tautology
+Tautology is created based on satisfiability, where we apply the all-method instead of the any method. Because in this case we want to check if the valuation always gives us True.
+
+I've checked the tautology definition by the following statements:
+if p is a contradiction, then not p is a tautology.
+An example of this: contradiction (Cnj [p, (Neg p)]) --> True, therefor
+tautology (Neg (Cnj [p, (Neg p)])) --> True
+
+--- Logical entailment
+Logical entailment is defined as "every valuation of p1 satisfies p2". This just means that if p1 is true, than p2 must also be true (the implies operator). The sheets also note this and mention how to implement this method: tautology (Impl p1 p2)
+
+I've checked this method by applying some proof rules:
+p -> q, p |= q --> True
+p -> q, not q |= not q --> True
+p -> q, q -> r |= p -> r --> True
+p |= p or q --> True
+p or q |= p --> False (which is good)
+p |= p and q --> False (which is good)
+p and q |= p --> True
+p <-> q |= p -> q and q -> p --> True
+
+I could have continued, but I have taken for granted that the double negation would logically entail p.
+Further I've double checked the results of the entails function by the entails2 function. Which states that p1 -> not p2 is a contradiction (Here we applied the tautology checking for contradiction again)
+
+--- Logical equivalence
+Logical equivalence means that both p1 and p2 yield the same result for a given valuation. To implement this we just checked if the new formula Equiv p1 p2 is a tautology.
+
+To test this, we applied some equivalence rules:
+p -> q <-> not p or q
+p or p <-> p
+p and p <-> p
+p or (p and q) <-> p
+p and (p or q) <-> p
+p or q <-> q or p
+etc.
+
+-- Time spent
+Implementing: 1:30 hour (most time on reading about the entailment, and then finding out it was in the sheets all along..)
+Checking: 0:30 hour (I did however stumble on a haskell not in scope exception. Totally missed that p was defined as Prop 1 and my method was failing because m was not defined as Prop n)
+
