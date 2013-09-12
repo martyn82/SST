@@ -21,3 +21,19 @@ triangle' [a, b, c] | a > 0 && a + b <= c = NoTriangle
                     | (a == b && b /= c) || (b == c && c /= a) || (a == c && c /= b) = Isosceles
                     | otherwise = Other
 
+-- satisfiability, tautology, contradiction..
+-- satisfiable :: Form -> Bool
+-- satisfiable f = any (\ v -> eval v f) (allVals f)
+
+contradiction :: Form -> Bool
+contradiction f = not (satisfiable f)
+
+tautology :: Form -> Bool
+tautology f = all (\x -> eval x f) (allVals f)
+
+entails :: Form -> Form -> Bool
+entails f g = tautology (Impl f g)
+
+equiv :: Form -> Form -> Bool
+equiv f g = tautology (Equiv f g)
+
