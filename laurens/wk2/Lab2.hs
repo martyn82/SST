@@ -34,6 +34,9 @@ tautology f = all (\x -> eval x f) (allVals f)
 entails :: Form -> Form -> Bool
 entails f g = tautology (Impl f g)
 
+entails2 :: Form -> Form -> Bool
+entails2 f g = contradiction (Cnj [f, (Neg g)])
+
 equiv :: Form -> Form -> Bool
 equiv f g = tautology (Equiv f g)
 
