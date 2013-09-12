@@ -1,0 +1,29 @@
+Testing / checking the triangle-function:
+
+1. Finding out what a Triangle is:
+
+" The sum of the lengths of any two sides of a triangle always exceeds the length of the third side, a principle known as the triangle inequality. Since the vertices of a triangle are assumed to be non-collinear, it is not possible for the sum of the length of two sides be equal to the length of the third side; nor is it possible for that sum to be less than the length of the third side. "
+ - http://en.wikipedia.org/wiki/Triangle
+
+Based on this principle, we find that "the sum of two sides always exceeds the length of the third side". This gives us the following tests:
+a + b > c | a + c > b | b + c > a
+
+given a = 1, b = 2, c = 2 we get:
+1 + 2 > 2 | 1 + 2 > 2 | 2 + 2 > 1
+a valid triangle.
+
+When we however sort the list from low to high, we can use the first test only to find out if the other tests hold. Proof:
+if min + min > max
+then min + max > min (because max > right side min)
+
+This does not prevent us from filling in negative numbers. This however is stupid, because we can't have a negative length or no length. Therefor we conclude that something is a triangle if:
+shortest_side > 0 and shortest_side + next_shortest_side > longest_side
+
+2. Testing for an equilateral triangle
+check if all sides are of equal length.
+
+3. Testing for a rectangular triangle
+check if the pythagoras holds. this requires our sides to be sorted again. But afterwards it's just applying the values to the pythagoras.
+
+4. Testing for an isosceles triangle
+check if two sides are equal, but not all sides.
