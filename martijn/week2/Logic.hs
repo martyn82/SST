@@ -59,6 +59,6 @@ runBinaryTests :: [([Char],Bool)]
 runBinaryTests = map (\ (testCase, fn, name) -> (name, (testBinary testCase fn))) allBinaryTests
 
 -- run whole test suite
-runTests :: [([Char],Bool)]
-runTests = runUnaryTests ++ runBinaryTests
+runLogicTests :: [([Char],Bool)]
+runLogicTests = runUnaryTests ++ runBinaryTests
 
