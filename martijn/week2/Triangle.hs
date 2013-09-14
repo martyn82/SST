@@ -1,6 +1,7 @@
 module Triangle
 where
 
+import Uncurry
 import Data.List
 
 data Shape = NoTriangle         -- sum of two sides lesser or equal than the third
@@ -39,10 +40,6 @@ allTests = [(equilaterals,Equilateral),
             (rectangulars,Rectangular),
             (notriangles,NoTriangle),
             (others,Other)]
-
--- expand 3-tuple to separate function arguments
-uncurry3 :: (a -> b -> c -> d) -> (a,b,c) -> d
-uncurry3 fn = \(a,b,c) -> fn a b c
 
 -- test function
 test :: [(Integer,Integer,Integer)] -> Shape -> Bool
