@@ -1,0 +1,86 @@
+Triangle:
+
+-- Bas
+1. NoTriangle check might be a bit overkill:
+	" or (map (<1) sides) || a + b <= c = NotATriangle"
+
+The precondition states that a,b,c are sorted from low to high. Thus we only have to check if a > 0.
+
+
+2. Isosceles check is incomplete:
+	"| a == b || b == c = Isosceles"
+
+The definition states that a triangle is isosceles when:
+.. if the three numbers are the lengths of the sides of an isosceles (but not equilateral) triangle ..
+
+This check only checks for the isosceles property, but does not check if the triangle is equilateral.
+This code will thus fail when the order of guards is changed.
+
+3. Test report is missing.
+I do see some unit tests, but I cannot make up how or why these tests ensure the triangle function works properly.
+
+-- Martijn
+1. NoTriangle check does not considers sides with no length. That does not seem correct to me:
+triangle 0 0 0 would yield Equilateral. Whilst it should yield, NotATriangle.
+
+2. Isosceles check is incomplete. View comments above (-- Bas, point 2)
+
+3. Test report is very concise. I am missing why a + b <= c means not a triangle (what theorem is that based upon?).
+
+
+
+
+Satisfiability, Tautology, Contradiction, ..:
+
+-- Bas
+1. Contradiction
+Code actually states not satisfiable a, why did you re-implement satisfiable here?
+
+2. Entailment
+Entailment is defined as "every valuation that satisfies f1 also satisfies f2" by the sheets. This means that when I apply [p(True), q(False)] to f1, and f1 yields true. The same valuation should yield true for f2. In your implementation it is unclear if this is happening:
+	"(allResults a) -> (allResults b)"
+
+This implementation could work, but could also mean: for each valuation that satisfies a, b is a tautology. This does not match with the definition of entailment.
+
+I bet your implementation fails for these kind of tests:
+p and q |= p
+
+3. Equivalent
+You defined equivalence as "a is logically equivalent to b if a <-> b is logically valid". This could be rewritten as: "a -> b ^ b -> a". Thus the implementation that is expected would be "(entailment a b) && (entailment b a)". Your implementation however states: "(allResults a) == (allResults b)".
+
+This implementation could work, but only for formulas that look the same. Because effectively you are checking of one list is equal to the other list. Which evidently is false, when the first list has 4 items and the second has 2.
+
+I bet your implementation fails for these kind of tests:
+(p or (not p)) and q <-> q
+
+4. Test/method checking report is missing
+I see some unit tests, but I do not understand why/how they cover these methods.
+I expect things like:
+f is a contradiction, therefor not f must be a tautology.
+
+-- Martijn
+1. Entails
+View my comment on bas' code (point 2). Your implementation also fails for these kind of tests:
+p and q |= p
+
+2. Equiv
+View my comment on bas' code (point 3). Your implementation also fails for these kind of tests:
+(p or (not p)) and q <-> q
+
+3. Test/method checking report is concise
+I do see some okay tests, but I am missing the expected tests:
+f is a contradiction, therefor not f must be a tautology
+etc.
+
+
+
+
+CNF Converter:
+-- Bas
+Not yet finished.
+
+-- Martijn
+1. Test report
+Your tests seem to assume the workings of arrowfree and nnf (?). I do view that you have defined some tuples of in/outs, but I am not seeing any "runarrowfreeTests" or "runNNFTests"-functions.
+
+distribution tests seem valid to me, why did you exclude these test from the cnf-testcases?
