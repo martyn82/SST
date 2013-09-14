@@ -1,0 +1,63 @@
+Indication of time spent:
+Build: 4 hours
+Testing: 2.5 hours
+
+Conversion program:
+toCNF :: Form -> Form
+
+Test report:
+Because we have to know that our preconditions fit, we have to test all formulas required in toCNF. So let's look at the implementation:
+toCNF = cnf . nnf . arrowfree
+
+1. Arrow free
+Arrow free is said to work for every formula. So we have to test it's expected result for every formula, meaning we have to look at the definition of Form:
+data Form = Prop Name
+          | Neg  Form
+          | Cnj [Form]
+          | Dsj [Form]
+          | Impl Form Form 
+          | Equiv Form Form 
+
+The definition tells us that we have to make at least 6 testcases.
+Based on the pseudo code in the sheets, I've come up with the following testcases:
+(arrowfree p) == p
+(arrowfree not p) == not p
+etc.
+
+The test for equivalence failed (af_check_6). It did not yield the expected result mentioned in the sheets. However when tested for equivalence (equiv (p <-> q) (arrowfree p <-> q)) it appeared to be equivalent.
+
+When we implement an alternative arrowfree method, with the expected behavior. We see that the formula p <-> q gets translated into CNF much easier when we use the definition from the sheets:
+*Lab2> toCNF (Equiv p q)
+*(*(+(1 -1) +(1 -2)) *(+(2 -1) +(2 -2)))
+*Lab2> toCNF' (Equiv p q)
+*(+(-1 2) +(1 -2))
+
+As you can see, the original definition requires some work at the CNF/Dist-stage, whilst the sheet definition does not require this work.
+
+2. NNF
+NNF expects it's input to be arrow free. So we are allowed to ditch a few formulas as inputs and test only the other cases. This is what we tested:
+nnf p == p
+nnf not p == not p
+nnf not not p == p
+nnf p and q == p and q
+nnf p or q == p or q
+nnf not (p and q) == (not p) or (not q)
+nnf not (p or q) == (not p) and (not q)
+
+In this case we did not find any unexpected results.
+
+3. CNF
+CNF expects it's input to be arrowfree and NNF. Meaning that we can expect the following formulas: p, not p, p and q, p or q
+The sheets forgot to mention the not p case, but this is a legit case.
+To test this, we apply all different cnf formulas:
+cnf p == p
+cnf p and q == p and q
+cnf p or q == p or q
+cnf (p and q) or r == (p or r) and (q or r)
+cnf p or (q and r) == (p or q) and (p or r)
+
+And to see if the distribution works correctly:
+p or (q and r and s) == (p or q) and (p or r) and (p or s)
+p or q or (r and s) == ((p or q) or r) and ((p or q) or s)
+
+In this case we did not find any unexpected results.
