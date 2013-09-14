@@ -40,3 +40,19 @@ entails2 f g = contradiction (Cnj [f, (Neg g)])
 equiv :: Form -> Form -> Bool
 equiv f g = tautology (Equiv f g)
 
+-- CNF Converter
+toCNF :: Form -> Form
+toCNF = cnf . nnf . arrowfree
+
+-- precondition: input is arrow-free and in NNF
+cnf :: Form -> Form 
+cnf (Prop x) = Prop x
+cnf (Neg x) = Neg x
+cnf (Cnj fs) = Cnj (map cnf fs)
+cnf (Dsj (f:fs)) = foldl dist (cnf f) (map cnf fs)
+
+-- precondition: input is CNF
+dist :: Form -> Form -> Form
+dist (Cnj fs) gs = Cnj [dist f gs | f <- fs]
+dist fs (Cnj gs) = Cnj [dist fs g | g <- gs]
+dist fs gs = Dsj [fs, gs]
