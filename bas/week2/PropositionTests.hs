@@ -29,21 +29,28 @@ check6 = Dsj [check1, check2]
 contradictions = [check1, check5]
 tautologies    = [check2, check6]
 satisfiables   = [check3, check4]
+equivalents    = [(check2, check6), (check3, check3), (form1, form1)]
+notEquivalents = [(check1, check6), (check2, check5), (check3, check4), (form1, form2)]
+
 
 runTests :: [Form] -> (Form -> Bool) -> Bool -> Bool
 runTests forms func expected = and (map (\form -> (func form) == expected) forms)
 
-runTests2 :: [Form] -> [Form] -> (Form -> Bool) -> Bool -> Bool
-runTests2 forms1 forms2 func expected = and (map (\
+runTests2 :: [(Form, Form)] -> (Form -> Form -> Bool) -> Bool -> Bool
+runTests2 forms func expected = and (map (\(f1, f2) -> (func f1 f2) == expected) forms)
 
 allTests1 = [(contradictions, tautology, False),
              (satisfiables, tautology, False),
 			 (tautologies, tautology, True),
 			 (contradictions, contradiction, True),
 			 (satisfiables, contradiction, False),
-			 (tautologies, contradiction, False)]
+			 (tautologies, contradiction, False)]	 
 
-allTests2
-			 
-			 
-runAllTests1 = and (map (uncurry3 runTests) allTests1)
+allTests2 = [(equivalents, equivalent, True),
+			 (notEquivalents, equivalent, False),
+			 (equivalents, entailment, True)]
+
+runAllTests1 = and (map (uncurry3 runTests) allTests1) 
+runAllTests2 = and (map (uncurry3 runTests2) allTests2) 
+
+runAllTests = runAllTests1 && runAllTests2

@@ -4,6 +4,7 @@ where
 
 import Data.List
 import Data.Char
+import Data.Maybe
 
 data Coin = C Int
 
@@ -75,9 +76,11 @@ data Form = Prop Name
           | Impl Form Form 
           | Equiv Form Form 
           deriving Eq
-
+	  
+letters = (zip [1..11] ['p'..'z'] )
+		  
 instance Show Form where 
-  show (Prop x)   = show x
+  show (Prop x)  = [fromJust (lookup x letters)]
   show (Neg f)    = '-' : show f 
   show (Cnj fs)     = "*(" ++ showLst fs ++ ")"
   show (Dsj fs)     = "+(" ++ showLst fs ++ ")"
