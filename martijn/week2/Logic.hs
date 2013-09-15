@@ -13,7 +13,7 @@ tautology f = all (\ v -> eval v f) (allVals f)
 
 -- Logical entailment is the property of two formulas if for all valuations V(a) = True holds that V(b) = True
 entails :: Form -> Form -> Bool
-entails a b = (values a) <= (values b)
+entails a b = tautology b || (values a) <= (values b)
             where values f = map (\ v -> eval v f) (allVals f)
 
 -- Logical equivalence is the property of two formulas that have the same truth table (therefore, have the exact same valuations)
