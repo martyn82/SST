@@ -9,30 +9,21 @@ import PropositionTests
 createInvertedVariable :: (Name, Bool) -> Form
 createInvertedVariable (name, value) | value 	  = Neg (Prop name)
 									 | otherwise = Prop name
-									  
-
+									 
 allFalses func = (filter (\val -> not (eval val func)) (allVals func))
 										
 cnf :: Form -> Form	
 cnf (Prop prop) = (Prop prop)
-cnf (func) | isCnf func     = func
-		   | tautology func = Dsj [p, Neg (p)]
-		   | otherwise 	    = Cnj (map (\val -> Dsj (map (\var -> createInvertedVariable var) val)) (allFalses func))
+cnf (func) | isCnf func       = func
+		   | tautology func   = Dsj [p, Neg (p)]
+		   | length dsjs == 1 = head dsjs
+		   | otherwise 	      = Cnj dsjs
+		   where dsjs = (map (\val -> Dsj (map (\var -> createInvertedVariable var) val)) (allFalses func))
 
-	   
-	   
-	   
-		   
-isProp (Prop prop) = True
-isProp func        = False
-
-isNeg (Neg func) = True
-isNeg func       = False
-
-isDsj (Dsj func) = and $ map isDsj func
-isDsj func       | isProp func = True
-                 | isNeg func = True
-		         | otherwise = False
+isDsj (Dsj func)  = and $ map isDsj func
+isDsj (Neg func)  = isDsj func
+isDsj (Prop prop) = True
+isDsj func        = False
 		
 isCnf (Cnj func)  = and $ map isCnf func
 isCnf func        = isDsj func
