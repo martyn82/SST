@@ -30,10 +30,11 @@ tautologies    = [(Dsj [p, (Neg p)]),                           -- p OR ~p
                   (Equiv p p),                                  -- p <-> p
                   (Impl (Cnj [p, q]) q)]                        -- (p AND q) -> q
 -- entailment
-entailments    = [(p,p),                                        -- p |= p
-                 ((Cnj [p,q]),(Dsj [p,q]))]                     -- p AND q |= p OR q
+entailments    = [(p, p),                                       -- p |= p
+                 ((Cnj [p, q]), (Dsj [p, q])),                  -- p AND q |= p OR q
+                 ((Cnj [p, q]), p)]                             -- p AND q |= p
 -- same valuations
-equivalences   = [((Cnj [p,q]),(Neg(Dsj [Neg(p),Neg(q)])))]     -- (p AND q) <=> ~(~p OR ~q)
+equivalences   = [((Cnj [p, q]), (Neg(Dsj [Neg(p), Neg(q)])))]  -- (p AND q) <=> ~(~p OR ~q)
 
 -- combined test cases
 allUnaryTests = [(contradictions, contradiction, "Contradictions"),

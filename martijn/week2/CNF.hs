@@ -68,11 +68,11 @@ allDistTests   = [(disttests, dist, "Distribution")]
 
 -- test translation functions
 testCNF :: [(Form, Form)] -> (Form -> Form) -> Bool
-testCNF tests fn = and (map (\ (item, expected) -> (fn item) == expected) tests)
+testCNF tests fn = and (map (\ (item, expected) -> (fn item) == expected && (equiv (fn item) expected)) tests)
 
 -- test distribution function
 testDist :: [(Form, Form, Form)] -> (Form -> Form -> Form) -> Bool
-testDist tests fn = and (map (\ (item1, item2, expected) -> (fn item1 item2) == expected) tests)
+testDist tests fn = and (map (\ (item1, item2, expected) -> (fn item1 item2) == expected && (equiv (fn item1 item2) expected)) tests)
 
 -- run CNF tests
 runCNFTests :: [([Char], Bool)]
