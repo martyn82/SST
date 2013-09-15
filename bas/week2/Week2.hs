@@ -81,7 +81,8 @@ data Form = Prop Name
 letters = (zip [1..11] ['p'..'z'] )
 		  
 instance Show Form where 
-  show (Prop x)  = [fromJust (lookup x letters)]
+  show (Prop x) | x > 11    = show x
+ 				| otherwise = [fromJust (lookup x letters)]
   show (Neg f)    = '-' : show f 
   show (Cnj fs)     = "*(" ++ showLst fs ++ ")"
   show (Dsj fs)     = "+(" ++ showLst fs ++ ")"
