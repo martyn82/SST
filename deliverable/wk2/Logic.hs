@@ -17,9 +17,13 @@ entails a b = tautology (Impl a b)
 
 -- Logical equivalence is the property of two formulas that have the same truth table (therefore, have the exact same valuations)
 equiv :: Form -> Form -> Bool
-equiv a b = (allVals a) == (allVals b)
+equiv a b = tautology (Equiv a b)
 
--- test cases
+
+
+-- TEST PLAN
+-- Below the test cases are defined for each function.
+
 -- always false
 contradictions = [(Cnj [p, (Neg p)]),                           -- p AND ~p
                   (Equiv p (Neg p)),                            -- p <-> ~p
@@ -61,4 +65,3 @@ runBinaryTests = map (\ (testCase, fn, name) -> (name, (testBinary testCase fn))
 -- run whole test suite
 runLogicTests :: [([Char],Bool)]
 runLogicTests = runUnaryTests ++ runBinaryTests
-
