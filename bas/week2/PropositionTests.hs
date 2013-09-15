@@ -1,3 +1,7 @@
+module PropositionTests
+
+where 
+
 import Week2
 import Uncurry3
 
@@ -33,17 +37,11 @@ satisfiables   = [check3, check4]
 runTests :: [Form] -> (Form -> Bool) -> Bool -> Bool
 runTests forms func expected = and (map (\form -> (func form) == expected) forms)
 
-runTests2 :: [Form] -> [Form] -> (Form -> Bool) -> Bool -> Bool
-runTests2 forms1 forms2 func expected = and (map (\
-
 allTests1 = [(contradictions, tautology, False),
              (satisfiables, tautology, False),
 			 (tautologies, tautology, True),
 			 (contradictions, contradiction, True),
 			 (satisfiables, contradiction, False),
 			 (tautologies, contradiction, False)]
-
-allTests2
-			 
-			 
+ 
 runAllTests1 = and (map (uncurry3 runTests) allTests1)
