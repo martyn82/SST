@@ -66,11 +66,11 @@ allCNFTests = [(arrowfreetests, arrowfree, "ArrowFree"),
 -- combined DIST test cases
 allDistTests   = [(disttests, dist, "Distribution")]
 
--- test translation functions
+-- test translation functions by checking if input and output match expectations, and if input and output are equivalent
 testCNF :: [(Form, Form)] -> (Form -> Form) -> Bool
 testCNF tests fn = and (map (\ (item, expected) -> (fn item) == expected && (equiv (fn item) expected)) tests)
 
--- test distribution function
+-- test distribution function by checking if input and output match expectations, and if input and output are equivalent
 testDist :: [(Form, Form, Form)] -> (Form -> Form -> Form) -> Bool
 testDist tests fn = and (map (\ (item1, item2, expected) -> (fn item1 item2) == expected && (equiv (fn item1 item2) expected)) tests)
 
