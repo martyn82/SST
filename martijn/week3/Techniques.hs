@@ -91,11 +91,13 @@ getRandomForm d = do n <- getRandomInt 3
                                return (Prop (m+1))
                        1 -> do f <- getRandomForm (d-1)
                                return (Neg f) 
-                       2 -> do m  <- getRandomInt 5 
-                               fs <- getRandomForms (d-1) m
+                       -- tests exposed a bug in the two cases below where getRandomForms got invoked with two zeroes (getRandomForms 0 0) and yielded an empty list
+                       -- if that happens, the formula is not well-formed: either +() or *()
+                       2 -> do m  <- getRandomInt 4 
+                               fs <- getRandomForms (d-1) (m+1)
                                return (Cnj fs)
-                       3 -> do m  <- getRandomInt 5 
-                               fs <- getRandomForms (d-1) m
+                       3 -> do m  <- getRandomInt 4
+                               fs <- getRandomForms (d-1) (m+1)
                                return (Dsj fs)
 
 getRandomFs :: Int ->  IO [Form]
