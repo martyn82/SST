@@ -10,6 +10,8 @@ import Logic
 -- translate formula to conjunctive normal form (CNF)
 -- precondition : input is arrow-free and in NNF
 -- postcondition: output is in CNF
+-- VVZ: not all things allowed by Form are covered. counterexample: "cnf (Neg (Neg p))"
+-- VVZ: another counterexample: "cnf (Cnj [Cnj [p,q], q])"
 cnf :: Form -> Form
 cnf (Prop x)      = Prop x
 cnf (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs

@@ -5,6 +5,7 @@ import Week2
 
 -- A contradiction is a formula that is not satisfiable
 contradiction :: Form -> Bool
+-- VVZ: correct, but a shorter notation would be "contradiction = not . satisfiable"
 contradiction f = not (satisfiable f)
 
 -- A tautology is a formula for which all valuations are True

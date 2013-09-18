@@ -1,6 +1,7 @@
 --exercise 1
 
 foldrLength :: [a] -> Int
+-- VVZ: arguments that you don't need, can be replaced with underscores
 foldrLength = foldr (\x y -> 1 + y) 0
 
 foldrElem :: (Eq a) => [a] -> a -> Bool
@@ -9,6 +10,9 @@ foldrElem xs x = foldr (\y z -> z || x == y) False xs
 foldrOr = foldr (||) False
 
 foldrMap :: (a -> b) -> [a] -> [b]
+-- VVZ: could have dropped the xs at the end - cf. http://www.haskell.org/haskellwiki/Eta_conversion
+-- VVZ: another cool thing: a colon is also a function in Haskell, so you could have written:
+-- VVZ: foldrMap f = foldr ((:) . f) []
 foldrMap f xs = foldr (\y ys -> (f y) : ys) [] xs
 
 filterItem :: (a -> Bool) -> a -> [a] -> [a]
@@ -19,9 +23,16 @@ foldrFilter :: (a -> Bool) -> [a] -> [a]
 foldrFilter p xs = foldr (\y ys -> (filterItem p y ys)) [] xs
 
 foldrConcat :: [a] -> [a] -> [a]
+-- VVZ: (++) is also a function, so (\y ys -> ys ++ y) is the same as (\y -> (++y))
 foldrConcat xs ys = foldr (\y ys -> ys ++ y) [] [xs, ys]
 
+-- VVZ: however, you cheat a bit here by still using (++). What we meant was like this:
+foldrConcat' :: [a] -> [a] -> [a]
+foldrConcat' [] ys = ys
+foldrConcat' xs ys = foldrConcat' (init xs) (last xs : ys)
+
 foldrReverse :: [a] -> [a]
+-- VVZ: you could have used your foldrConcat instead of (++) ;)
 foldrReverse xs = foldr (\y ys -> ys ++ [y]) [] xs
 
 --exercise 2

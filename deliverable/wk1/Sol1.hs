@@ -16,6 +16,7 @@ removeFst x (y:ys) | x == y	 = ys
 
 -- 1.13
 count :: Char -> String -> Int
+-- VVZ: correct, but how about "count c = length . filter (==c)"?
 count a []     = 0
 count a (x:xs) | a == x    = 1 + (count a xs)
                | otherwise = (count a xs)
@@ -49,3 +50,5 @@ lengths xss = map length xss
 -- 1.21
 sumLengths :: [[a]] -> Int
 sumLengths xss = sum (lengths xss)
+
+-- VVZ: shorter versions of the previous two functions are "lengths = map length" and "sumLengths = sum . lengths"

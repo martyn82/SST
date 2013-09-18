@@ -48,3 +48,11 @@ test shapes expected = and (map (\ item -> (uncurry3 triangle item) == expected)
 -- run test suite
 runTests :: [(Shape,Bool)]
 runTests = map (\ (testCase,expected) -> (expected, (test testCase expected))) allTests
+
+-- VVZ: some thoughts on other things to test:
+-- VVZ: are there no weird triangles around? (this example is for rectangulars as the most simple one)
+testV1 :: Bool
+testV1 = [[x,y,z] | x <- [-1..5], y <- [x..5], z <- [y..5], triangle x y z == Rectangular] == [[3,4,5]]
+-- VVZ: do permutations matter?
+testV2 :: Bool
+testV2 = null [[x,y,z] | x <- [-1..5], y <- [x..5], z <- [y..5], triangle x y z /= triangle z y x]
