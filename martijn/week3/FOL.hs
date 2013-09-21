@@ -4,7 +4,7 @@ where
 import Week3
 import Techniques
 
--- generates a random FOL formula
+-- generates a random First Order Logic formula
 getRandomFOLForm :: Int -> IO Formula
 getRandomFOLForm 0 = do m <- getRandomInt 20
                         return (Atom (show (m+1)) [])
@@ -33,7 +33,7 @@ getRandomFOLForm d = do n <- getRandomInt 7
                                     f <- getRandomFOLForm (d-1)
                                     return (Exists (show (m+1)) f)
 
--- generates random FOL formulas
+-- generates random First Order Logic formulas
 getRandomFOLForms :: Int -> Int -> IO [Formula]
 getRandomFOLForms _ 0 = return []
 getRandomFOLForms d n = do
@@ -41,7 +41,7 @@ getRandomFOLForms d n = do
                       fs <- getRandomFOLForms d (n-1)
                       return (f:fs)
 
--- generates n random FOL formulas
+-- generates n random First Order Logic formulas
 getRandomFOLFs :: Int -> IO [Formula]
 getRandomFOLFs n = do d <- getRandomInt 3
                       getRandomFOLForms d n
