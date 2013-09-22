@@ -1,7 +1,7 @@
 module Permutations where
 
 import Data.List
-
+import Techniques
 import Random
 
 -- Exercise 4:
@@ -41,10 +41,12 @@ testp n p (x:xs) (y:ys) =
           else error ("failed test on: (" ++ show x ++ "," ++ show y ++ "):" ++ (show (isPermutation x y)))
 
 -- tests permutations by feeding lists of random ints and a property to the isPermutation method.
--- testPermutations (# tests) (# list length) (property method)
+-- testPermutations (# tests) (# max list length) (property method)
 testPermutations :: Int -> Int -> ([Int] -> [Int] -> Bool) -> IO ()
 testPermutations n l p = do
-        xs <- (mapM (\ i -> genIntList' l) [1..n])
-        ys <- (mapM (\ i -> genIntList' l) [1..n])
+        l1 <- getRandomInt l
+        l2 <- getRandomInt l
+        xs <- (mapM (\ i -> genIntList' l1) [1..n])
+        ys <- (mapM (\ i -> genIntList' l2) [1..n])
         testp n p ys xs
 
