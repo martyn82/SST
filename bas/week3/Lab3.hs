@@ -14,7 +14,7 @@ import Control.Applicative ((<*>), (*>), (<$>))
 import Data.Char;
 import Week3;
 import Techniques; 
-
+ 
 randomIntegerStream :: [IO Int]
 randomIntegerStream = getRandomInt 10 : randomIntegerStream 
 
