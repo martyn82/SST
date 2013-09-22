@@ -4,6 +4,8 @@ where
 import Week2
 import Logic
 
+-- THIS IS A COPY OF THE FILE OF WEEK2
+
 -- we have two possible solutions
 -- the first follows the assignment: 
 

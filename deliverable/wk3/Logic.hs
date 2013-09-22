@@ -3,6 +3,8 @@ where
 
 import Week2
 
+-- THIS IS A COPY OF THE FILE OF WEEK2
+
 -- A contradiction is a formula that is not satisfiable
 contradiction :: Form -> Bool
 -- VVZ: correct, but a shorter notation would be "contradiction = not . satisfiable"
