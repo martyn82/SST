@@ -4,6 +4,24 @@ where
 import Week3
 import Techniques
 
+-- generates a random term
+getRandomTerm :: IO Term
+getRandomTerm = do n <- getRandomInt 1
+                   case n of
+                      0 -> do m <- getRandomInt 10
+                              return (V (show (m+1)))
+                      1 -> do m <- getRandomInt 10
+                              s <- getRandomInt 3
+                              ts <- getRandomTerms s
+                              return (F (show (m+1)) ts)
+
+-- generates random terms
+getRandomTerms :: Int -> IO [Term]
+getRandomTerms 0 = return []
+getRandomTerms n = do t <- getRandomTerm
+                      ts <- getRandomTerms (n-1)
+                      return (t:ts)
+
 -- generates a random First Order Logic formula
 getRandomFOLForm :: Int -> IO Formula
 getRandomFOLForm 0 = do m <- getRandomInt 20
@@ -11,7 +29,8 @@ getRandomFOLForm 0 = do m <- getRandomInt 20
 getRandomFOLForm d = do n <- getRandomInt 7
                         case n of
                             0 -> do m <- getRandomInt 20
-                                    return (Atom (show (m+1)) [])
+                                    t <- getRandomTerm
+                                    return (Atom (show (m+1)) [t])
                             1 -> do f <- getRandomFOLForm (d-1)
                                     return (Neg f)
                             2 -> do m <- getRandomInt 4
