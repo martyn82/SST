@@ -1,6 +1,7 @@
 module Week3Bas 	
 where
 import Data.Maybe;
+import Data.Either;
 import Data.List;
 import System.Random;
 import Control.Monad;
@@ -16,14 +17,19 @@ import Week3;
 randomIntegerStream :: [IO Int]
 randomIntegerStream = (randomRIO (1,10) : randomIntegerStream)
 
-genIntList :: IO [Int]
-genIntList = sequence randomIntegerStream 
+genIntList :: Int -> IO [Int]
+genIntList length = sequence $ take 10 randomIntegerStream 
 
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation [] []    = True
+isPermutation [] _     = False
+isPermutation _ []     = False
 isPermutation (x:xs) ys | elem x ys  = isPermutation xs (delete x ys)
                         | otherwise   = False
-
+ 
+rightVal x = head $ rights [x]
+ 
+formula3 = rightVal $ parseFormula "AxAy((R(x,y))==>(R(y,x)))"
                       
 --after various experiments, using Parsec to create the
 --parser. The expression features cover the neg, impl and equi
