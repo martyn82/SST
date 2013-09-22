@@ -35,7 +35,7 @@ permutationTest3 x y = intersect x y == x
 rightVal x = head $ rights [x]
  
 formula3 = rightVal $ parseFormula "AxAy((R(x,y))==>(R(y,x)))"
-                      
+
 --after various experiments, using Parsec to create the
 --parser. The expression features cover the neg, impl and equi
 --formulas, solving associativity, precedence and fixity.
