@@ -1,49 +1,26 @@
-module Week3Bas 	
+module Parser 	
 where
-import Data.Maybe;
 import Data.Either;
-import Data.List;
 import Data.Functor.Identity;
-import System.Random;
-import Control.Monad;
-import Text.Parsec.Error;
 import Text.ParserCombinators.Parsec;
 import Text.Parsec.Expr;
 import Text.Parsec.Token;
 import Text.Parsec.Prim hiding (try)
 import Text.ParserCombinators.Parsec.Language;
 import Control.Applicative ((<*>), (*>), (<$>))
-import Data.Char;
 import Week3;
-import Techniques (getRandomInt)
- 
-randomIntegerStream :: [IO Int]
-randomIntegerStream = getRandomInt 10 : randomIntegerStream 
-
-genIntList :: IO [Int]
-genIntList = sequence $ (take 10 stream)
-                 where stream = getRandomInt 10 : stream
-
-isPermutation :: Eq a => [a] -> [a] -> Bool 
-isPermutation [] []    = True
-isPermutation [] _     = False
-isPermutation _ []     = False
-isPermutation (x:xs) ys | elem x ys  = isPermutation xs (delete x ys)
-                        | otherwise   = False
- 
- 
-permutationTest1 x y = length x == length y
-permutationTest2 x y = sort x == sort y
-permutationTest3 x y = intersect x y == x 
  
 rightVal x = head $ rights [x]
- 
+
 formula3 = rightVal $ parseFormula "AxAy((R(x,y))==>(R(y,x)))"
 formula4 = rightVal $ parseFormula "AxAyEz((R(x,y)==>((R(y,x))<=>(R(x,z)))))"
+formula5 = rightVal $ parseFormula "AxAy (R(x,y))"
+formula6 = rightVal $ parseFormula "*(R(x,y), x=z, +(y=z,x=y))"
 
 --after various experiments, using Parsec to create the
 --parser. The expression features cover the neg, impl and equi
 --formulas, solving associativity, precedence and fixity.
+--also shows nice errors!
 --we combine the parser created by parsec with our own conj and disj
 --parser, and combine that newly created parser with the quantifier parser
 
@@ -133,99 +110,5 @@ expr = compositePrefix "*" Conj
    
 parseFormula :: [Char] -> Either ParseError Formula
 parseFormula input = parse expr "" input
-        
-parseTerm :: String -> Either ParseError Term
-parseTerm input = parse term "Unknown" input
-    
-
--- value = (eof >> return []) <|>
-        -- (try (string "\n ") >> ((++) <$> return "\n " <*> value)) <|>
-        -- (many (noneOf "\n"))
-                    
--- kvp = do
-        -- k <- many (noneOf ":")
-        -- char ':'
-        -- v <- value
-        -- eof <|> (char '\n' >> return ())
-        -- return (k,v)
-
--- kvps =   do
-         -- first <- kvp
-         -- result <- (eof >> return []) <|> kvps
-         -- return (first:result)  
-
--- parseTst :: String -> Either ParseError [(String, String)]
--- parseTst input = parse kvps "Unknown" input
-						
--- def = emptyDef{ identStart = letter
-              -- , opStart = oneOf "-"
-              -- , reservedOpNames = ["==>", "==", "<=>", ":="]
-			  -- , reservedNames   = ["conj", "disj"]
-              -- }
-
--- TokenParser{ parens = m_parens
-           -- , identifier = m_identifier
-           -- , reservedOp = m_reservedOp
-           -- , reserved = m_reserved
-           -- , semiSep1 = m_semiSep1
-           -- , whiteSpace = m_whiteSpace } = makeTokenParser def
-
--- table = [ [Prefix (m_reservedOp "-"  >> return Neg)]
-        -- , [Prefix (m_reserved "conj" >> return (Conj)) AssocLeft]
-        -- , [Prefix (m_reserved "disj" >> return (Conj)) AssocLeft]
-        -- ]
-
--- expression = buildExpressionParser table term <?> "expression"
--- term       = parens expression
-				
-					   
-					   
-					   
-
--- -- newtype P s t = P ([s] -> [(t, [s])])
--- -- (<|>) :: P s b -> P s b -> P s b
--- -- (<|>) (P p1) (P p2) = P (\s -> p1 s ++ p2 s)
--- -- (<*>) :: P s (b -> a) -> P s b -> P s a
--- -- (<*>) (P p1) (P p2) = P (\s -> [(v1 v2, rest2) | (v1, rest1) <- p1 s, (v2, rest2) <- p2 rest1])
--- -- (<$>) :: (b -> a) -> (P s b) -> (P s a)
--- -- (<$>) f p2	 = successParser f <*> p2
-
--- -- infix 7 <$>
--- -- infixl 5 <*>
--- -- infixr 3 <|>
--- -- infixl 3 `opt`
--- -- infixl 5 (<*);(*>)
--- -- infixl 7 (<$)
--- -- f <$ p = const 	<$> pReturn f 	<*> p
--- -- p <* q = const 	<$> p 			<*> q
--- -- p *> q = id 	<$  p 			<*> q
-
--- -- pParens :: Parser s a ! Parser s a
--- -- pParens p = id <$ pSym '(' <$> p <$ pSym ')'
--- -- opt :: Parser s a -> a -> Parser s a
-
--- -- p `opt` v = p <|> successParser v
--- -- parens = (max:(1+)) <$> pParens parens <*> parens `opt` 0
-
--- -- unP (P p) = p
--- -- parseSymbol s []        = []
--- -- parseSymbol s [c]		| s == c    = [(s, [])]
-						-- -- | otherwise = []
--- -- parseSymbol s (c:cs)	| s == c    = [(s, cs)]
-						-- -- | otherwise = []
-	
--- -- symbolParser :: (Eq s) => s -> P s s
--- -- symbolParser s = P (parseSymbol s)
-
--- -- successParser :: a -> P s a
--- -- successParser a = P (\s -> [(a, s)])	
-
-
--- -- parentheses :: P Char Int
--- -- parentheses = ((\_ b _ d -> max (1 + b) d) <$> symbolParser '(' <*> parentheses <*> symbolParser ')'<*> parentheses) <|> successParser 0
-
-
-
-
 
 					  
