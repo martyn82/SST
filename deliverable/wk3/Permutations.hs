@@ -35,7 +35,7 @@ testp :: Int -> ([Int] -> [Int] -> Bool) -> [[Int]] -> [[Int]] -> IO ()
 testp n p [] _ = print (show n ++ " tests passed")
 testp n p _ [] = print (show n ++ " tests passed")
 testp n p (x:xs) (y:ys) =
-          if ((isPermutation x y) && (p x y)) then do
+          if ((isPermutation x y) == (p x y)) then do
                   print ("pass on: (" ++ show x ++ "," ++ show y ++ "):" ++ (show (isPermutation x y)))
                   testp n p xs ys
           else error ("failed test on: (" ++ show x ++ "," ++ show y ++ "):" ++ (show (isPermutation x y)))
