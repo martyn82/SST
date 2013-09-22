@@ -13,14 +13,14 @@ import Text.ParserCombinators.Parsec.Language;
 import Control.Applicative ((<*>), (*>), (<$>))
 import Data.Char;
 import Week3;
-import Techniques; 
+import Techniques (getRandomInt)
  
 randomIntegerStream :: [IO Int]
 randomIntegerStream = getRandomInt 10 : randomIntegerStream 
 
--- genIntList :: Int -> IO [Int]
--- genIntList = sequence $ stream
-                    -- where stream = getRandomInt 10 : stream
+genIntList :: IO [Int]
+genIntList = sequence $ (take 10 stream)
+                 where stream = getRandomInt 10 : stream
 
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation [] []    = True
