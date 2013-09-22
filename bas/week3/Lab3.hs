@@ -18,7 +18,7 @@ randomIntegerStream :: [IO Int]
 randomIntegerStream = (randomRIO (1,10) : randomIntegerStream)
 
 genIntList :: Int -> IO [Int]
-genIntList length = sequence $ take 10 randomIntegerStream 
+genIntList length = sequence $ take length randomIntegerStream 
 
 isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation [] []    = True
