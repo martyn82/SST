@@ -1,4 +1,4 @@
-module TestCNF
+    module TestCNF
 where
 
 import Week2;
