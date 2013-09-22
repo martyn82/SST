@@ -28,7 +28,6 @@ isPermutation (x:xs) ys | elem x ys  = isPermutation xs (delete x ys)
                         | otherwise   = False
  
  
- 
 permutationTest1 x y = length x == length y
 permutationTest2 x y = sort x == sort y
 permutationTest3 x y = intersect x y == x 
