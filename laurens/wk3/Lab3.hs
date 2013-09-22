@@ -68,3 +68,5 @@ testPermutations' m props = do l1 <- getRandomInt 10
 testAllPermutationProperties n m = do r <- testPermutations n m [testPermutationLengthEquality, testPermutationListDifference, testPermutationListIntersection, testPermutationOnUniqueList]
                                       let r' = filter (\x -> foldr (/=) False (fst x)) r -- Select those result that said that isPermutation was true and properties was false or vice versa.
                                       return r'
+
+-- Exercise 6 -> View CNFTest.hs
