@@ -70,3 +70,67 @@ testAllPermutationProperties n m = do r <- testPermutations n m [testPermutation
                                       return r'
 
 -- Exercise 6 -> View CNFTest.hs
+
+-- Exercise 7 : Time spent 2 hours
+getRandomTerm :: IO Term
+getRandomTerm = do n <- getRandomInt 1
+                   case n of
+                     0 -> do m <- getRandomInt 10
+                             return (V (show (m+1)))
+                     1 -> do m <- getRandomInt 10
+                             o <- getRandomInt 3
+                             ts <- getRandomTerms o
+                             return (F (show (m+1)) ts)
+
+getRandomTerms :: Int -> IO [Term]
+getRandomTerms 0 = return []
+getRandomTerms n = do t <- getRandomTerm
+                      ts <- getRandomTerms (n-1)
+                      return (t:ts)
+
+getRandomFOLF :: IO Formula
+getRandomFOLF = do d <- getRandomInt 4
+                   getRandomFOLForm d
+            
+getRandomFOLForm :: Int -> IO Formula 
+getRandomFOLForm 0 = do m <- getRandomInt 20
+                        return (Atom (show (m+1)) [x, y, z])
+getRandomFOLForm d = do n <- getRandomInt 8
+                        case n of
+                          0 -> do m <- getRandomInt 20
+                                  t <- getRandomTerm
+                                  return (Atom (show (m+1)) [t])
+                          1 -> do t1 <- getRandomTerm
+                                  t2 <- getRandomTerm
+                                  return (Eq t1 t2)
+                          2 -> do f <- getRandomFOLForm (d-1)
+                                  return (Neg f)
+                          3 -> do f <- getRandomFOLForm (d-1)
+                                  g <- getRandomFOLForm (d-1)
+                                  return (Impl f g)
+                          4 -> do f <- getRandomFOLForm (d-1)
+                                  g <- getRandomFOLForm (d-1)
+                                  return (Equi f g)
+                          5 -> do m  <- getRandomInt 5
+                                  fs <- getRandomFOLForms (d-1) m
+                                  return (Conj fs)
+                          6 -> do m  <- getRandomInt 5
+                                  fs <- getRandomFOLForms (d-1) m
+                                  return (Disj fs)
+                          7 -> do m  <- getRandomInt 20
+                                  f <- getRandomFOLForm (d-1)
+                                  return (Forall (show (m+1)) f)
+                          8 -> do m  <- getRandomInt 20
+                                  f <- getRandomFOLForm (d-1)
+                                  return (Exists (show (m+1)) f)
+
+getRandomFOLFs :: Int -> IO [Formula]
+getRandomFOLFs n = do d <- getRandomInt 3
+                      getRandomFOLForms d n     
+
+getRandomFOLForms :: Int -> Int -> IO [Formula]
+getRandomFOLForms _ 0 = return []
+getRandomFOLForms d n = do 
+                        f <- getRandomFOLForm d
+                        fs <- getRandomFOLForms d (n-1) 
+                        return (f:fs)
