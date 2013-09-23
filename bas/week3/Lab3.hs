@@ -3,28 +3,24 @@ where
 import Data.Maybe;
 import Data.Either;
 import Data.List;
-import Data.Functor.Identity;
 import System.Random;
 import Control.Monad;
 import Text.Parsec.Error;
 import Text.ParserCombinators.Parsec;
 import Text.Parsec.Expr;
 import Text.Parsec.Token;
-import Text.Parsec.Prim hiding (try)
 import Text.ParserCombinators.Parsec.Language;
 import Control.Applicative ((<*>), (*>), (<$>))
 import Data.Char;
 import Week3;
-import Techniques (getRandomInt)
- 
+
 randomIntegerStream :: [IO Int]
-randomIntegerStream = getRandomInt 10 : randomIntegerStream 
+randomIntegerStream = (randomRIO (1,10) : randomIntegerStream)
 
-genIntList :: IO [Int]
-genIntList = sequence $ (take 10 stream)
-                 where stream = getRandomInt 10 : stream
+genIntList :: Int -> IO [Int]
+genIntList length = sequence $ take length randomIntegerStream 
 
-isPermutation :: Eq a => [a] -> [a] -> Bool 
+isPermutation :: Eq a => [a] -> [a] -> Bool
 isPermutation [] []    = True
 isPermutation [] _     = False
 isPermutation _ []     = False
@@ -39,7 +35,6 @@ permutationTest3 x y = intersect x y == x
 rightVal x = head $ rights [x]
  
 formula3 = rightVal $ parseFormula "AxAy((R(x,y))==>(R(y,x)))"
-formula4 = rightVal $ parseFormula "AxAyEz((R(x,y)==>((R(y,x))<=>(R(x,z)))))"
 
 --after various experiments, using Parsec to create the
 --parser. The expression features cover the neg, impl and equi
@@ -74,88 +69,87 @@ table = [ [prefix "~" Neg],
           [Infix  (m_reservedOp "==>" >> return Impl) AssocLeft],
           [Infix  (m_reservedOp "<=>" >> return Equi) AssocLeft]
            ]
-           
-prefix :: String -> (a -> a) -> Operator [Char] u Identity a
+
 prefix          opName fun = Prefix (do{ m_reservedOp opName; return fun })
+namedPrefix     opName fun = Prefix (do{ m_reservedOp opName; name <- m_identifier; return (fun name) })
 
-namedPrefix :: String -> (String -> a -> a) -> Operator [Char] u Identity a
-namedPrefix opName fun = Prefix (do{ m_reservedOp opName; name <- m_identifier; return (fun name) })
-
-commaSymbol :: ParsecT [Char] u Identity ()
 commaSymbol = spaces >> char ',' >> spaces
 
-compositePrefix :: [Char] -> ([Formula] -> Formula) -> ParsecT [Char] u Identity Formula
 compositePrefix opName fun = do{ m_reservedOp opName; forms <- m_parens (sepBy expr commaSymbol); return (fun forms);}
 
 --identifier in term: x  
-var :: ParsecT [Char] t Identity Term
 var = do    
         name <- m_identifier
         return (V name)
         
 --function as formula: f(x,y)
-atomFunc :: ParsecT [Char] t Identity Formula
 atomFunc = do 
         name <- m_identifier
         terms <- m_parens (sepBy term commaSymbol)
         return (Atom name terms) <?> "atom function"
 
 --function in term: f(x,y)
-termFunc :: ParsecT [Char] t Identity Term
 termFunc = do 
         name <- m_identifier
         terms <- m_parens (sepBy term  commaSymbol)
         return (F name terms) <?> "function"
 
 --two terms: x = y as a formula
-termsEq :: ParsecT [Char] t Identity Formula
 termsEq = do
         l <- term
         m_reservedOp "="
         r <- term
         return (Eq l r) <?> "term eq"
-        
-term :: ParsecT [Char] t Identity Term
+
 term = try termFunc <|> var
         
-atomic :: ParsecT [Char] u Identity Formula
 atomic = m_parens expr 
      <|> try termsEq
      <|> atomFunc
      <|> expr --this recursive descent step is needed because we add the composite expressions later;
               --the parsers generated from the 'buildExpressionParser' don't allow for conjunction
               --and disjunction.
-
-expr :: ParsecT [Char] u Identity Formula
+              
 expr = compositePrefix "*" Conj
    <|> compositePrefix "+" Disj 
    <|> buildExpressionParser table atomic
    
-parseFormula :: [Char] -> Either ParseError Formula
 parseFormula input = parse expr "" input
+        
+-- data Formula = Atom Name [Term]
+               -- | Eq Term Term
+               -- | Neg  Formula 
+               -- | Impl Formula Formula
+               -- | Equi Formula Formula
+               -- | Conj [Formula]
+               -- | Disj [Formula] 
+               -- | Forall Name Formula
+               -- | Exists Name Formula
+               -- deriving (Eq,Ord)
+        
         
 parseTerm :: String -> Either ParseError Term
 parseTerm input = parse term "Unknown" input
     
 
--- value = (eof >> return []) <|>
-        -- (try (string "\n ") >> ((++) <$> return "\n " <*> value)) <|>
-        -- (many (noneOf "\n"))
+value = (eof >> return []) <|>
+        (try (string "\n ") >> ((++) <$> return "\n " <*> value)) <|>
+        (many (noneOf "\n"))
                     
--- kvp = do
-        -- k <- many (noneOf ":")
-        -- char ':'
-        -- v <- value
-        -- eof <|> (char '\n' >> return ())
-        -- return (k,v)
+kvp = do
+        k <- many (noneOf ":")
+        char ':'
+        v <- value
+        eof <|> (char '\n' >> return ())
+        return (k,v)
 
--- kvps =   do
-         -- first <- kvp
-         -- result <- (eof >> return []) <|> kvps
-         -- return (first:result)  
+kvps =   do
+         first <- kvp
+         result <- (eof >> return []) <|> kvps
+         return (first:result)  
 
--- parseTst :: String -> Either ParseError [(String, String)]
--- parseTst input = parse kvps "Unknown" input
+parseTst :: String -> Either ParseError [(String, String)]
+parseTst input = parse kvps "Unknown" input
 						
 -- def = emptyDef{ identStart = letter
               -- , opStart = oneOf "-"
