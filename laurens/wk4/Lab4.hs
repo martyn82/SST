@@ -34,3 +34,19 @@ getRandomSet' ml mv = do xs <- genIntList' ml mv
                          return (list2set xs)
 
 -- Exercise 3:
+-- Set union: A union B = x in A or x in B
+-- unionSet :: (Ord a) => Set a -> Set a -> Set a
+-- unionSet (Set [])     set2  = set2
+-- unionSet (Set (x:xs)) set2  = insertSet x (unionSet (Set xs) set2)
+
+-- Set intersection: A intersect B = x in A and x in B
+intersectSet :: (Ord a) => Set a -> Set a -> Set a
+intersectSet (Set []) _     = Set []
+intersectSet (Set (x:xs)) s | inSet x s  = insertSet x (intersectSet (Set xs) s)
+                            | otherwise  = intersectSet (Set xs) s
+
+-- Set difference: A - B = x in A and x not in B
+differenceSet :: (Ord a) => Set a -> Set a -> Set a
+differenceSet s (Set [])     = s
+differenceSet s (Set (y:ys)) | inSet y s = differenceSet (deleteSet y s) (Set ys)
+                             | otherwise = differenceSet s (Set ys)
