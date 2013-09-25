@@ -88,11 +88,49 @@ testSetUnionIdentity u a b = a' == a && aa == a && b' == b && bb == b
                                    b' = u b (Set [])
                                    bb = u b b
 
+-- intersect properties
+-- all a in B and b in A are in intersection A B
+-- testSetIntersectElements (Intersect method) (Set A) (Set B)
+testSetIntersectElements :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetIntersectElements i (Set a) (Set b) = all (`inSet` ab) [a' | a' <- a, inSet a' (Set b)]
+                                          && all (`inSet` ab) [b' | b' <- b, inSet b' (Set a)]
+                                             where ab = i (Set a) (Set b)
+
+-- length of intersection A B <= length of A and length of intersection A B <= length of B
+-- testSetIntersectLength (Intersect method) (Set A) (Set B)
+testSetIntersectLength :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetIntersectLength i (Set a) (Set b) = length a >= length ab && length b >= length ab
+                                           where (Set ab) = i (Set a) (Set b)
+
+-- intersection A B = intersection B A
+-- testSetIntersectEquality (Intersect method) (Set A) (Set B)
+testSetIntersectEquality :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetIntersectEquality i a b = ab == ba
+                                 where ab = i a b
+                                       ba = i b a
+
+-- intersection A Set [] = Set []
+-- intersection A A = A
+-- testSetIntersectIdentity (Intersect method) (Set A) (Set B)
+testSetIntersectIdentity :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetIntersectIdentity i a b = a' == (Set []) && aa == a && b' == (Set []) && bb == b
+                                 where a' = i a (Set [])
+                                       aa = i a a
+                                       b' = i b (Set [])
+                                       bb = i b b
+
 -- testSetUnion (# tests) (# max set length) (#minValue,#maxValue)
 testSetUnion :: Int -> Int -> (Int, Int) -> IO ()
 testSetUnion n l r = do xs <- getRandomSets n l r
                         ys <- getRandomSets n l r
                         testSet n unionSet [testSetUnionElements, testSetUnionLength, testSetUnionEquality, testSetUnionIdentity] xs ys
+
+-- testSetIntersect (# tests) (# max set length) (#minValue,#maxValue)
+testSetIntersect :: Int -> Int -> (Int, Int) -> IO ()
+testSetIntersect n l r = do xs <- getRandomSets n l r
+                            ys <- getRandomSets n l r
+                            testSet n intersectSet [testSetIntersectElements, testSetIntersectLength, testSetIntersectEquality, testSetIntersectIdentity] xs ys
+
 
 -- testSet (#tests) (set method) [method properties] [set method input A] [set method input B]
 testSet :: Int -> (Set Int -> Set Int -> Set Int) -> [((Set Int -> Set Int -> Set Int) -> Set Int -> Set Int -> Bool)] -> [Set Int] -> [Set Int] -> IO ()
