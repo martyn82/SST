@@ -30,8 +30,15 @@ getRandomSet = do xs <- genIntList 10
 
 -- getRandomSet' (#max length of set) ((#minValue, #maxValue))
 getRandomSet' :: Int -> (Int, Int) -> IO (Set Int)
-getRandomSet' ml mv = do xs <- genIntList' ml mv
-                         return (list2set xs)
+getRandomSet' l r = do xs <- genIntList' l r
+                       return (list2set xs)
+
+-- getRandomSets (#sets) (#max length of set) (#minValue, #maxValue)
+getRandomSets :: Int -> Int -> (Int, Int) -> IO [(Set Int)]
+getRandomSets 0 _ _ = return []
+getRandomSets n l r = do x <- getRandomSet' l r
+                         xs <- getRandomSets (n-1) l r
+                         return (x:xs)
 
 -- Exercise 3:
 -- Set union: A union B = x in A or x in B
@@ -80,3 +87,17 @@ testSetUnionIdentity u a b = a' == a && aa == a && b' == b && bb == b
                                    aa = u a a
                                    b' = u b (Set [])
                                    bb = u b b
+
+-- testSetUnion (# tests) (# max set length) (#minValue,#maxValue)
+testSetUnion :: Int -> Int -> (Int, Int) -> IO ()
+testSetUnion n l r = do xs <- getRandomSets n l r
+                        ys <- getRandomSets n l r
+                        testSet n unionSet [testSetUnionElements, testSetUnionLength, testSetUnionEquality, testSetUnionIdentity] xs ys
+
+-- testSet (#tests) (set method) [method properties] [set method input A] [set method input B]
+testSet :: Int -> (Set Int -> Set Int -> Set Int) -> [((Set Int -> Set Int -> Set Int) -> Set Int -> Set Int -> Bool)] -> [Set Int] -> [Set Int] -> IO ()
+testSet n _ _ _ []           = print (show n ++ " tests passed")
+testSet n u ps (x:xs) (y:ys) = if all (&& True) [p u x y | p <- ps]
+                               then do print ("pass on: " ++ show x ++ ", " ++ show y)
+                                       testSet n u ps xs ys
+                               else error ("failed test on: " ++ show x ++ ", " ++ show y)
