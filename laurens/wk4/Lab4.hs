@@ -99,8 +99,9 @@ testSetIntersectElements i (Set a) (Set b) = all (`inSet` ab) [a' | a' <- a, inS
 -- length of intersection A B <= length of A and length of intersection A B <= length of B
 -- testSetIntersectLength (Intersect method) (Set A) (Set B)
 testSetIntersectLength :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
-testSetIntersectLength i (Set a) (Set b) = length a >= length ab && length b >= length ab
+testSetIntersectLength i (Set a) (Set b) = length a >= length ab && length b >= length ba
                                            where (Set ab) = i (Set a) (Set b)
+                                                 (Set ba) = i (Set b) (Set a)
 
 -- intersection A B = intersection B A
 -- testSetIntersectEquality (Intersect method) (Set A) (Set B)
@@ -119,6 +120,32 @@ testSetIntersectIdentity i a b = a' == (Set []) && aa == a && b' == (Set []) && 
                                        b' = i b (Set [])
                                        bb = i b b
 
+-- difference properties
+-- all a not in B are in A - B
+-- testSetDifferenceElements (Difference method) (Set A) (Set B)
+testSetDifferenceElements :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetDifferenceElements d (Set a) (Set b) = all (`inSet` ab) [a' | a' <- a, not (inSet a' (Set b))]
+                                           && all (`inSet` ba) [b' | b' <- b, not (inSet b' (Set a))]
+                                              where ab = d (Set a) (Set b)
+                                                    ba = d (Set b) (Set a)
+
+-- length of difference A B <= length of A and length of difference A B <= length of B
+-- testSetDifferenceLength (Difference method) (Set A) (Set B)
+testSetDifferenceLength :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetDifferenceLength d (Set a) (Set b) = length a >= length ab && length b >= length ba
+                                            where (Set ab) = d (Set a) (Set b)
+                                                  (Set ba) = d (Set b) (Set a)
+
+-- difference A Set [] = A
+-- difference A A = Set []
+-- testSetDifferenceIdentity (Difference method) (Set A) (Set B)
+testSetDifferenceIdentity :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetDifferenceIdentity d a b = a' == a && aa == (Set []) && b' == b && bb == (Set [])
+                                  where a' = d a (Set [])
+                                        aa = d a a
+                                        b' = d b (Set [])
+                                        bb = d b b
+
 -- testSetUnion (# tests) (# max set length) (#minValue,#maxValue)
 testSetUnion :: Int -> Int -> (Int, Int) -> IO ()
 testSetUnion n l r = do xs <- getRandomSets n l r
@@ -131,6 +158,11 @@ testSetIntersect n l r = do xs <- getRandomSets n l r
                             ys <- getRandomSets n l r
                             testSet n intersectSet [testSetIntersectElements, testSetIntersectLength, testSetIntersectEquality, testSetIntersectIdentity] xs ys
 
+-- testSetDifference (# tests) (# max set length) (#minValue,#maxValue)
+testSetDifference :: Int -> Int -> (Int, Int) -> IO ()
+testSetDifference n l r = do xs <- getRandomSets n l r
+                             ys <- getRandomSets n l r
+                             testSet n differenceSet [testSetDifferenceElements, testSetDifferenceLength, testSetDifferenceIdentity] xs ys
 
 -- testSet (#tests) (set method) [method properties] [set method input A] [set method input B]
 testSet :: Int -> (Set Int -> Set Int -> Set Int) -> [((Set Int -> Set Int -> Set Int) -> Set Int -> Set Int -> Bool)] -> [Set Int] -> [Set Int] -> IO ()
