@@ -40,7 +40,7 @@ getRandomSets n l r = do x <- getRandomSet' l r
                          xs <- getRandomSets (n-1) l r
                          return (x:xs)
 
--- Exercise 3:
+-- Exercise 3 : Time spent 5 hours
 -- Set union: A union B = x in A or x in B
 -- unionSet :: (Ord a) => Set a -> Set a -> Set a
 -- unionSet (Set [])     set2  = set2
