@@ -50,3 +50,33 @@ differenceSet :: (Ord a) => Set a -> Set a -> Set a
 differenceSet s (Set [])     = s
 differenceSet s (Set (y:ys)) | inSet y s = differenceSet (deleteSet y s) (Set ys)
                              | otherwise = differenceSet s (Set ys)
+
+-- union properties:
+-- all in A are in union A B and all in B are in union A B
+-- testSetUnionElements (Union method) (Set A) (Set B)
+testSetUnionElements :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetUnionElements u (Set a) (Set b) = all (`inSet` ab) [a' | a' <- a] && all (`inSet` ab) [b' | b' <- b]
+                                         where ab = u (Set a) (Set b)
+
+-- length of union A B >= length of A and length of union A B >= length of B
+-- testSetUnionLength (Union method) (Set A) (Set B)
+testSetUnionLength :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetUnionLength u (Set a) (Set b) = length a <= length ab && length b <= length ab
+                                       where (Set ab) = u (Set a) (Set b)
+
+-- union A B = union B A
+-- testSetUnionEquality (Union method) (Set A) (Set B)
+testSetUnionEquality :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetUnionEquality u a b = ab == ba
+                             where ab = u a b
+                                   ba = u b a
+
+-- union A Set [] = A
+-- union A A = A
+-- testSetUnionIdentity (Union method) (Set A) (Set B)
+testSetUnionIdentity :: (Ord a) => (Set a -> Set a -> Set a) -> Set a -> Set a -> Bool
+testSetUnionIdentity u a b = a' == a && aa == a && b' == b && bb == b
+                             where a' = u a (Set [])
+                                   aa = u a a
+                                   b' = u b (Set [])
+                                   bb = u b b
