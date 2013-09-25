@@ -179,4 +179,9 @@ type Rel a = [(a, a)]
 infixr 5 @@
 
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
-r @@ s = nub [(x,z) | (x,y) <- r, (w, z) <- s, y == w]
+r @@ s = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
+
+trClos :: Ord a => Rel a -> Rel a
+trClos r | null x    = sort r
+         | otherwise = trClos (r ++ x)
+         where x = [x | x <- r @@ r, not (elem x r)]
