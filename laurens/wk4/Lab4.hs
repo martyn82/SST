@@ -4,6 +4,7 @@ import Week4
 import SetOrd
 
 import System.Random
+import Data.List
 
 -- Exercise 2: Time spent 1 hour
 -- genIntList from wk 3
@@ -171,3 +172,11 @@ testSet n u ps (x:xs) (y:ys) = if all (&& True) [p u x y | p <- ps]
                                then do print ("pass on: " ++ show x ++ ", " ++ show y)
                                        testSet n u ps xs ys
                                else error ("failed test on: " ++ show x ++ ", " ++ show y)
+
+-- Exercise 5:
+type Rel a = [(a, a)]
+
+infixr 5 @@
+
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [(x,z) | (x,y) <- r, (w, z) <- s, y == w]
