@@ -195,7 +195,7 @@ trClos' r | transR r  = r
 transR :: Ord a => Rel a -> Bool
 transR r = and [elem (x,z) r | (x,y) <- r, (y',z) <- r, y == y']
 
--- Exercise 5 :
+-- Exercise 5 : Time spent 4 hours.
 -- trClos result should have transitive closure. This means that: "xRy and yRz -> xRz" must hold
 -- given the applied list comprehension in transR, we can see that this holds.
 --
