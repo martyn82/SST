@@ -173,7 +173,7 @@ testSet n u ps (x:xs) (y:ys) = if all (&& True) [p u x y | p <- ps]
                                        testSet n u ps xs ys
                                else error ("failed test on: " ++ show x ++ ", " ++ show y)
 
--- Exercise 5:
+-- Exercise 4 : Time spent 2 hour
 type Rel a = [(a, a)]
 
 infixr 5 @@
@@ -181,7 +181,23 @@ infixr 5 @@
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
 r @@ s = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
 
+-- First attempt using list comprehensions.
 trClos :: Ord a => Rel a -> Rel a
 trClos r | null x    = sort r
          | otherwise = trClos (r ++ x)
          where x = [x | x <- r @@ r, not (elem x r)]
+
+-- Method to create the smallest transitive closure (R+)
+trClos' :: Ord a => Rel a -> Rel a
+trClos' r | transR r  = r
+          | otherwise = trClos' (union r (r @@ r))
+
+-- Check if the given relation is transitive based on the book.
+transR :: Ord a => Rel a -> Bool
+transR [] = True
+transR rs = and [trans r rs | r <- rs]
+
+trans :: Ord a => (a,a) -> Rel a -> Bool
+trans (x,y) rs = and [elem (x,v) rs | (u,v) <- rs, u == y]
+
+-- Exercise 5 
