@@ -4,6 +4,11 @@ import Data.List
 import Techniques
 import Random
 
+intersect' :: Eq a => [a] -> [a] -> [a]
+intersect' [] _ = []
+intersect' (x:xs) ys | elem x ys = (x : intersect' xs (delete x ys))
+                     | otherwise = intersect' xs ys
+
 -- Exercise 4:
 -- determines whether ys is a permutation of xs
 -- precondition: list is finite.
@@ -24,7 +29,7 @@ testPermutationListDifference xs ys = (xs \\ ys) == [] && (ys \\ xs) == []
 
 -- Previous also implies that the intersection of both lists, always yields the entire list.
 testPermutationListIntersection :: Eq a => [a] -> [a] -> Bool
-testPermutationListIntersection xs ys = (xs `intersect` ys) == xs && (ys `intersect` xs) == ys
+testPermutationListIntersection xs ys = (xs `intersect'` ys) == xs && (ys `intersect'` xs) == ys
 
 -- If list A is a permutation of list B, than the sorted lists A' and B' are equal.
 testPermutationSortedListEquality :: Ord a => [a] -> [a] -> Bool
