@@ -1,7 +1,7 @@
 module Set
 where
 
-import Data.List (intersect, (\\))
+import Data.List
 import System.Random
 
 import Week4
@@ -23,10 +23,10 @@ genIntList = sequence $ (take listsize stream)
 -- generates a random set
 genRandomSet :: IO (Set Int)
 genRandomSet = do
-            m <- getRandomInt 0 1
+            m <- getRandomInt 0 3
             case m of
                 0 -> do return emptySet
-                1 -> do
+                _ -> do
                     ls <- genIntList
                     return (list2set ls)
 
@@ -75,3 +75,39 @@ testcases = [(unionSet, unionProperty, "UNION"),
 -- tests all cases n times
 testSets :: Int -> IO ()
 testSets n = mapM_ (\ (f, p, s) -> testProperty n f p s n ) testcases
+
+
+
+-- Relations
+-- binary relation type
+type Rel a = [(a,a)]
+
+-- 'on' operator for relations
+infixr 5 @@
+
+-- 'on' is defined for operands of type relation Rel and yields a new relation Rel
+(@@) :: Eq a => Rel a -> Rel a -> Rel a
+r @@ s = nub [(x,z) | (x,y) <- r, (w,z) <- s, y == w]
+
+-- inserts an element in a list
+insertList :: Ord a => a -> [a] -> [a]
+insertList x []         = [x]
+insertList x ys@(y:ys') = case compare x y of
+                               GT -> y : insertList x ys'
+                               EQ -> ys
+                               _  -> x : ys
+
+-- inserts an element in a relation
+insertRel :: (Ord a) => a -> [a] -> [a]
+insertRel x r = insertList x r
+
+-- computes the union for relations
+unionRel :: Ord a => Rel a -> Rel a -> Rel a
+unionRel [] y     = y
+unionRel (x:xs) y = insertRel x (unionRel xs y)
+
+-- compute the transitive closure R+ of a relation R
+trClos :: Ord a => Rel a -> Rel a
+trClos r = unionRel r (r @@ r)
+
+
