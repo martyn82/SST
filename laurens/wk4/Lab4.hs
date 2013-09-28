@@ -192,12 +192,24 @@ trClos' :: Ord a => Rel a -> Rel a
 trClos' r | transR r  = r
           | otherwise = trClos' (union r (r @@ r))
 
--- Check if the given relation is transitive based on the book.
 transR :: Ord a => Rel a -> Bool
-transR [] = True
-transR rs = and [trans r rs | r <- rs]
+transR r = and [elem (x,z) r | (x,y) <- r, (y',z) <- r, y == y']
 
-trans :: Ord a => (a,a) -> Rel a -> Bool
-trans (x,y) rs = and [elem (x,v) rs | (u,v) <- rs, u == y]
+-- Exercise 5 :
+-- trClos result should have transitive closure. This means that: "xRy and yRz -> xRz" must hold
+-- given the applied list comprehension in transR, we can see that this holds.
+--
+-- I could retest it here, but this would mean writing the same test and effectively
+-- testing the programming language. That is not to be tested.
 
--- Exercise 5 
+-- trClos must not remove pairs from the original relation
+testTrClosSubset :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
+testTrClosSubset f r = subSet (list2set r) (list2set (f r))
+
+-- trClos must create a minimal transitive relation
+-- if one of the added pairs is removed, transitivity must not hold anymore.
+testTrClosMinimal :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
+testTrClosMinimal f r = and [not (transR (r ++ r')) | r' <- (init . subsequences) (tc \\ r)]
+                        where tc = f r
+
+
