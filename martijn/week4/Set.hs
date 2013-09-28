@@ -4,6 +4,7 @@ where
 import Data.List (intersect, (\\))
 import System.Random
 
+import Week4
 import SetOrd
 
 listsize = 5
@@ -33,60 +34,44 @@ genRandomSet = do
 -- unionSet already defined in SetOrd module
 
 -- intersectSet gives the intersection of two Sets
-intersectSet :: (Ord a) => Set a -> Set a -> Set a
+intersectSet :: Set Int -> Set Int -> Set Int
 intersectSet (Set xs) (Set ys) = list2set (intersect xs ys)
 
 -- diffSet gives the non-associative difference between two sets
-diffSet :: (Ord a) => Set a -> Set a -> Set a
+diffSet :: Set Int -> Set Int -> Set Int
 diffSet (Set xs) (Set ys) = list2set (xs \\ ys)
 
 -- the union set of two sets A and B contains all elements of A and all elements of B
-unionProperty :: (Ord a) => Set a -> Set a -> Set a -> Bool
+unionProperty :: Set Int -> Set Int -> Set Int -> Bool
 unionProperty (Set xs) (Set ys) setZ = (all (\ x -> (inSet x setZ)) xs) && (all (\ y -> (inSet y setZ)) ys)
 
--- tests the union function on sets
-testUnion :: Int -> IO ()
-testUnion 0 = do print ("all tests passed")
-testUnion n = do
-            s1 <- genRandomSet
-            s2 <- genRandomSet
-            let s = (unionSet s1 s2)
-            if (unionProperty s1 s2 s) then do
-                print ("test passed on: " ++ show s1 ++ " UNION " ++ show s2 ++ " = " ++ show s)
-                testUnion (n-1)
-            else
-                error ("test failed on: " ++ show s1 ++ " UNION " ++ show s2 ++ " = " ++ show s)
-
 -- the intersection of two sets A and B is the set that contains all elements that are elements of both A and B
-intersectProperty :: (Ord a) => Set a -> Set a -> Set a -> Bool
+intersectProperty :: Set Int -> Set Int -> Set Int -> Bool
 intersectProperty setX setY (Set zs) = (all (\ z -> (inSet z setX) && (inSet z setY)) zs)
 
--- tests the intersection function on sets
-testIntersect :: Int -> IO ()
-testIntersect 0 = do print ("all tests passed")
-testIntersect n = do
-                s1 <- genRandomSet
-                s2 <- genRandomSet
-                let s = (intersectSet s1 s2)
-                if (intersectProperty s1 s2 s) then do
-                    print ("test passed on: " ++ show s1 ++ " INTERSECT " ++ show s2 ++ " = " ++ show s)
-                    testIntersect (n-1)
-                else
-                    error ("test failed on: " ++ show s1 ++ " INTERSECT " ++ show s2 ++ " = " ++ show s)
-
 -- the difference of two sets A and B is the set of all elements of A that are not elements of B
-diffProperty :: (Ord a) => Set a -> Set a -> Set a -> Bool
+diffProperty :: Set Int -> Set Int -> Set Int -> Bool
 diffProperty (Set xs) setY (Set zs) = (filter (\ x -> (not (inSet x setY))) xs) == zs
 
--- tests the difference function on sets
-testDiff :: Int -> IO ()
-testDiff 0 = do print ("all tests passed")
-testDiff n = do
-            s1 <- genRandomSet
-            s2 <- genRandomSet
-            let s = (diffSet s1 s2)
-            if (diffProperty s1 s2 s) then do
-                print ("test passed on: " ++ show s1 ++ " - " ++ show s2 ++ " = " ++ show s)
-                testDiff (n-1)
-            else
-                error ("test failed on: " ++ show s1 ++ " - " ++ show s2 ++ " = " ++ show s)
+-- tests a set property for random sets
+-- iterations -> (operation) -> (testproperty) -> name -> round
+testProperty :: Int -> (Set Int -> Set Int -> Set Int) -> (Set Int -> Set Int -> Set Int -> Bool) -> [Char] -> Int -> IO ()
+testProperty n _ _ s 0 = do print (show n ++ " tests passed for " ++ show s)
+testProperty n f p s r = do
+                setX <- genRandomSet
+                setY <- genRandomSet
+                let setZ = (f setX setY)
+                if (p setX setY setZ) then do
+                    print ("OK: " ++ show setX ++ " and " ++ show setY ++ " " ++ show s ++ " = " ++ show setZ)
+                    testProperty n f p s (r-1)
+                else
+                    error ("test failed on: " ++ show setX ++ " and " ++ show setY ++ " " ++ show s ++ " = " ++ show setZ)
+
+-- test cases
+testcases = [(unionSet, unionProperty, "UNION"),
+             (intersectSet, intersectProperty, "INTERSECT"),
+             (diffSet, diffProperty, "-")]
+
+-- tests all cases n times
+testSets :: Int -> IO ()
+testSets n = mapM_ (\ (f, p, s) -> testProperty n f p s n ) testcases
