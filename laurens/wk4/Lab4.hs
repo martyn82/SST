@@ -168,7 +168,7 @@ testSetDifference n l r = do xs <- getRandomSets n l r
 -- testSet (#tests) (set method) [method properties] [set method input A] [set method input B]
 testSet :: Int -> (Set Int -> Set Int -> Set Int) -> [((Set Int -> Set Int -> Set Int) -> Set Int -> Set Int -> Bool)] -> [Set Int] -> [Set Int] -> IO ()
 testSet n _ _ _ []           = print (show n ++ " tests passed")
-testSet n u ps (x:xs) (y:ys) = if all (&& True) [p u x y | p <- ps]
+testSet n u ps (x:xs) (y:ys) = if and [p u x y | p <- ps]
                                then do print ("pass on: " ++ show x ++ ", " ++ show y)
                                        testSet n u ps xs ys
                                else error ("failed test on: " ++ show x ++ ", " ++ show y)
@@ -212,4 +212,49 @@ testTrClosMinimal :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
 testTrClosMinimal f r = and [not (transR (r ++ r')) | r' <- (init . subsequences) (tc \\ r)]
                         where tc = f r
 
+-- Generate random test data
+-- getRandomPair' ((#minValue, #maxValue))
+getRandomPair' :: (Int, Int) -> IO (Int,Int)
+getRandomPair' n = do x <- getRandomInt' n
+                      y <- getRandomInt' n
+                      return (x,y)
 
+-- genPairList' (#list length) ((#minValue, #maxValue))
+genPairList' :: Int -> (Int, Int) -> IO [(Int,Int)]
+genPairList' n m = sequence $ (take n stream)
+                      where stream = (getRandomPair' m) : stream
+
+-- getRandomRelation' (#max relation list length) ((#minValue, #maxValue))
+getRandomRelation' :: Int -> (Int, Int) -> IO (Rel Int)
+getRandomRelation' l r = do l' <- getRandomInt' (0,l)
+                            xs <- genPairList' l' r
+                            return xs
+
+-- getRandomRelations (#relations) (#max relation list length) (#minValue,#maxValue)
+getRandomRelations :: Int -> Int -> (Int, Int) -> IO [(Rel Int)]
+getRandomRelations 0 _ _ = return []
+getRandomRelations n l r = do x <- getRandomRelation' l r
+                              xs <- getRandomRelations (n-1) l r
+                              return (x:xs)
+
+-- testTrClos (# tests) (# max relation list length) (#minValue,#maxValue)
+testTrClos :: Int -> Int -> (Int, Int) -> IO ()
+testTrClos n l r = do xs <- getRandomRelations n l r
+                      testTrClos' n trClos' [testTrClosSubset, testTrClosMinimal] xs
+
+-- testTrClos' (#tests) (trClos method) [method properties] [trClos method input A]
+testTrClos' :: Int -> (Rel Int -> Rel Int) -> [((Rel Int -> Rel Int) -> Rel Int -> Bool)] -> [Rel Int] -> IO ()
+testTrClos' n _ _ []      = print (show n ++ " tests passed")
+testTrClos' n f ps (r:rs) = if and [p f r | p <- ps]
+                            then do print ("pass on: " ++ show r)
+                                    testTrClos' n f ps rs
+                            else error ("failed test on: " ++ show r)
+
+-- Test report:
+-- I did not find any unexpected behavior.
+-- 
+-- "pass on: [(3,3)]"
+-- "pass on: []"
+-- "pass on: [(1,1),(1,2),(2,3),(1,2),(3,0),(2,1),(2,1),(1,0)]"
+-- "pass on: [(0,3),(1,3),(2,0)]"
+-- "10000 tests passed"
