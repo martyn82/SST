@@ -42,4 +42,14 @@ trClos r | transitiveR r = r
 transitiveR :: Eq a => Rel a -> Bool
 transitiveR r = and [elem (x,z) r | (x,y) <- r, (w,z) <- r, y == w]
 
-
+-- tests transitive closure
+testTrClos :: Int -> IO ()
+testTrClos 0 = do print ("all tests passed")
+testTrClos n = do
+        let rx = [(1,2),(2,3),(3,4)] -- randomize
+        let ry = trClos rx
+        if (transitiveR ry) then do
+            print ("OK: " ++ show rx ++ " = " ++ show ry)
+            testRels (n-1)
+        else
+            error ("FAIL: " ++ show rx ++ " = " ++ show ry)
