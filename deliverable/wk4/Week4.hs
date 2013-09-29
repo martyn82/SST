@@ -3,7 +3,7 @@ where
 
 import SetOrd;
 import System.Random;
-import Data.List (intersect, nub, sort, delete, (\\));
+import Data.List (union, intersect, nub, sort, delete, (\\), subsequences);
 
 -- 2. Implement a random data generator for the datatype Set Int, where
 -- Set is as defined in http://homepages.cwi.nl/~jve/rcrh/SetOrd.
@@ -18,7 +18,6 @@ getRandomSet :: IO (Set Int)
 getRandomSet = do ls <- sequence (take 10 randomSequence)
                   return (list2set ls)
 
-                  
 --set union already defined in SetOrd.hs
 
 --intersection:
@@ -40,9 +39,8 @@ differenceSet (Set x)  (Set  y)  = list2set $ listDifference x y
 --in a commercial environment we would do this:
 differenceSet' :: Set Int -> Set Int -> Set Int
 differenceSet' (Set xs) (Set ys) = list2set (xs \\ ys)
-          
-          
-          
+
+
 shouldContainAll, shouldContainOnly, shouldBeCommutative, shouldNotBeCommutative, shouldContainSubsets, identityShouldYieldItself :: Ord a => (Set a -> Set a -> Set a) -> (Set a) -> (Set a) -> Bool
 shouldContainAll u (Set a) (Set b)  = (all (flip inSet $ ab) a) 
                                     && (all (flip inSet $ ab) b)
@@ -118,50 +116,101 @@ runTestSetCase n (f,p,name) = testPropertyOnRandomSets f p name n n
 
 runAllTestSetCases = mapM_ (runTestSetCase $ 1000) testSetCases
 
+-- TEST RESULTS:
+--"1000 cases passed for 'union contains only elements of a or b'"
+--"1000 cases passed for 'union contains all elements of a and b'"
+--"1000 cases passed for 'union should be commutative'"
+--"1000 cases passed for 'a should be a subset of ab, b should be a subset of ab'"
+--"1000 cases passed for 'union with empty set should yield the original'"
+--"1000 cases passed for 'union of a and a should be a, union of b and b should be b '"
+--"1000 cases passed for 'difference contains no elements of b'"
+--"1000 cases passed for 'difference contains only elements of a'"
+--"1000 cases passed for 'a-a should yield an empty set'"
+--"1000 cases passed for 'difference contains no elements of b'"
+--"1000 cases passed for 'difference contains only elements of a'"
+--"1000 cases passed for 'a-a should yield an empty set'"
+--"1000 cases passed for 'intersection should be commutative'"
+--"1000 cases passed for 'intersection contains only elements that are elements of both a and b'"
+--"1000 cases passed for 'intersection identity should yield itself'"
+--"1000 cases passed for 'intersection should be commutative'"
+--"1000 cases passed for 'intersection contains only elements that are elements of both a and b'"
+--"1000 cases passed for 'intersection identity should yield itself'"
 
+-- Relations
+-- binary relation type
 type Rel a = [(a,a)]
+
+-- 'on' operator for relations
 infixr 5 @@
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
 r @@ s = nub [ (x,z) | (x,y) <- r, (w,z) <- s, y == w ]
 
-unionRelation :: (Ord a) => Rel a -> Rel a -> Rel a
-unionRelation a  b = sort $ (nub $ a ++ b)
+-- compute the transitive closure R+ of a relation R
+trClos :: Ord a => Rel a -> Rel a
+trClos r | isTransitive [] r = sort r
+         | otherwise         = trClos (union r (r @@ r))
 
---minimal transitive closure
-transitiveClosure :: (Ord a) => (Rel a) -> (Rel a)
-transitiveClosure a = unionRelation a (a @@ a)
+-- property test functions
+isTransitive, isSubset, isMinimal, hasSameDomain, hasSameRange :: Ord a => Rel a -> Rel a -> Bool
 
---everything that can be done in two steps can be done in one step
-isTransitive :: (Ord a) => Rel a -> Bool
-isTransitive a = (sort $ nub [(x,z) | (x,y) <- a, (x', z) <- (a @@ a), x == x']) == (sort $ nub $ a)
+-- checks if transitivity holds for the given relation
+isTransitive _ r = and [elem (x,z) r | (x,y) <- r, (y',z) <- r, y == y']
 
-isMinimal a    = all (not.isTransitive) [delete x a | x <- a, (delete x a) /= []]
+-- trClos must not remove pairs from the original relation
+isSubset r1 r2 = subSet (list2set r1) (list2set r2)
 
-randomRelation = do a <- sequence (take 3 randomSequence)
+-- trClos must create a minimal transitive relation
+-- if one of the added pairs is removed, transitivity must not hold anymore.
+isMinimal r1 r2 = and [not (isTransitive [] (r1 ++ r1')) | r1' <- (init . subsequences) (r2 \\ r1)]
+
+-- transitive closure must have the same set of first elements as its original
+hasSameDomain r1 r2 = dr == dfr
+                       where dr = sort $ nub [x | (x, _) <- r1]
+                             dfr = sort $ nub [x' | (x', _) <- r2]
+
+-- transitive closure must have the same set of second elements as its original
+hasSameRange r1 r2 = rr == rfr
+                      where rr = sort $ nub [y | (_, y) <- r1]
+                            rfr = sort $ nub [y' | (_, y') <- r2]
+
+-- generates a random relation
+randomRelation :: IO [(Int, Int)]
+randomRelation = do
+                    a <- sequence (take 3 randomSequence)
                     b <- sequence (take 3 randomSequence)
                     return $ nub $ zip a b
 
-testRelationCases = [(transitiveClosure, isMinimal,    "transitive closure should be minimal"),
-                     (transitiveClosure, isTransitive, "transitive closure should yield a transitive relation")]
+-- testcases
+testRelationCases = [(trClos, isTransitive, "transitive closure should yield a transitive relation"),
+                     (trClos, isMinimal, "transitive closure should be the minimum transitive relation"),
+                     (trClos, isSubset, "the original relation R should be a subset of the transitive closure R+"),
+                     (trClos, hasSameDomain, "transitive closure R+ should have the same set of first elements of each pair as R"),
+                     (trClos, hasSameRange, "transitive closure R+ should have the same set of second elements of each pair as R")]
 
-testPropertyOnRandomRelation  f p name = do a <- randomRelation
-                                            let b = f a
-                                            if (not $ p b) then do 
-                                                error ("test failed for " ++ name ++ " on " ++ show a ++ " -> " ++ show b)                          
-                                            else return ()
-                                  
+-- test relation property
+testPropertyOnRandomRelation f p name = do
+                                           a <- randomRelation
+                                           let b = f a
+                                           if (not $ p a b) then do 
+                                               error ("test failed for '" ++ name ++ "' on " ++ show a ++ " -> " ++ show b)                          
+                                           else return ()
+
+-- test property for random relations
 testPropertyOnRandomRelations _ _ name n 0 = do print (show n ++ " cases passed for '" ++ name ++ "'")
 testPropertyOnRandomRelations f p name n i = do testPropertyOnRandomRelation  f p name
                                                 testPropertyOnRandomRelations f p name n (i - 1)
-                                                
-runTestRelationCase n (f, p, name) = testPropertyOnRandomRelations f p name n n  
-                          
-runAllTestRelationCases = mapM_ (runTestRelationCase $ 10) testRelationCases                 
 
---test results: minimum property fails on (2,2),(8,8)
---test failed for transitive closure should yield a
---transitive relation on [(6,1),(1,7),(10,7)] -> [(1,7),(6,1),(6,7),(10,7)]
+-- run test case for relations
+runTestRelationCase n (f, p, name) = testPropertyOnRandomRelations f p name n n
 
+-- run all relations test cases
+runAllTestRelationCases :: IO ()
+runAllTestRelationCases = mapM_ (runTestRelationCase $ 1000) testRelationCases                 
 
+-- TEST RESULTS:
+--"1000 cases passed for 'transitive closure should yield a transitive relation'"
+--"1000 cases passed for 'transitive closure should be the minimum transitive relation'"
+--"1000 cases passed for 'the original relation R should be a subset of the transitive closure R+'"
+--"1000 cases passed for 'transitive closure R+ should have the same set of first elements of each pair as R'"
+--"1000 cases passed for 'transitive closure R+ should have the same set of second elements of each pair as R'"
 
-                                           
