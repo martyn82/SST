@@ -50,6 +50,6 @@ testTrClos n = do
         let ry = trClos rx
         if (transitiveR ry) then do
             print ("OK: " ++ show rx ++ " = " ++ show ry)
-            testRels (n-1)
+            testTrClos (n-1)
         else
             error ("FAIL: " ++ show rx ++ " = " ++ show ry)
