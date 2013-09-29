@@ -35,5 +35,11 @@ unionRel (x:xs) y = insertRel x (unionRel xs y)
 
 -- compute the transitive closure R+ of a relation R
 trClos :: Ord a => Rel a -> Rel a
-trClos r = unionRel r (r @@ r)
+trClos r | transitiveR r = r
+         | otherwise     = trClos (unionRel r (r @@ r))
+
+-- checks for transitive property on R
+transitiveR :: Eq a => Rel a -> Bool
+transitiveR r = and [elem (x,z) r | (x,y) <- r, (w,z) <- r, y == w]
+
 
