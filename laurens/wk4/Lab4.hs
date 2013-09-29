@@ -212,6 +212,17 @@ testTrClosMinimal :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
 testTrClosMinimal f r = and [not (transR (r ++ r')) | r' <- (init . subsequences) (tc \\ r)]
                         where tc = f r
 
+-- trClos must not change the range or domain of the relation
+testTrClosDomain :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
+testTrClosDomain f r = dr == dfr
+                       where dr = nub [x | (x, _) <- r]
+                             dfr = nub [x' | (x', _) <- (f r)]
+
+testTrClosRange :: Ord a => (Rel a -> Rel a) -> Rel a -> Bool
+testTrClosRange f r = rr == rfr
+                      where rr = nub [y | (_, y) <- r]
+                            rfr = nub [y' | (_, y') <- (f r)]
+
 -- Generate random test data
 -- getRandomPair' ((#minValue, #maxValue))
 getRandomPair' :: (Int, Int) -> IO (Int,Int)
@@ -240,7 +251,7 @@ getRandomRelations n l r = do x <- getRandomRelation' l r
 -- testTrClos (# tests) (# max relation list length) (#minValue,#maxValue)
 testTrClos :: Int -> Int -> (Int, Int) -> IO ()
 testTrClos n l r = do xs <- getRandomRelations n l r
-                      testTrClos' n trClos' [testTrClosSubset, testTrClosMinimal] xs
+                      testTrClos' n trClos' [testTrClosSubset, testTrClosMinimal, testTrClosDomain, testTrClosRange] xs
 
 -- testTrClos' (#tests) (trClos method) [method properties] [trClos method input A]
 testTrClos' :: Int -> (Rel Int -> Rel Int) -> [((Rel Int -> Rel Int) -> Rel Int -> Bool)] -> [Rel Int] -> IO ()
