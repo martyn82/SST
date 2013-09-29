@@ -174,7 +174,7 @@ hasSameRange r1 r2 = rr == rfr
                             rfr = sort $ nub [y' | (_, y') <- r2]
 
 -- generates a random relation
-randomRelation :: IO [(Int, Int)]
+randomRelation :: IO (Rel Int)
 randomRelation = do
                     a <- sequence (take 3 randomSequence)
                     b <- sequence (take 3 randomSequence)
