@@ -1,9 +1,7 @@
-module NRCSudoku
+module Sudoku
 where
 
 import Data.List
-
--- BELOW IS COPIED AND MODIFIED FROM WEEK5.HS
 
 type Row    = Int 
 type Column = Int 
@@ -114,7 +112,7 @@ showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
 bl :: Int -> [Int]
-bl x = concat $ filter (elem x) blocks 
+bl x = concat $ filter (elem x) blocks
 
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
