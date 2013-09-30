@@ -1,3 +1,9 @@
+-- The members of every subgrid2 [i,j] with i,j ranging over 2..4 and 6..8
+-- should be all different.
+-- I.e., the list of values
+-- [f [i,j] | i <- [2..4], j <- [2..4] ]
+-- should not have duplicates, and similarly for the other subgrids
+
 module NRCSudoku
 where
 
@@ -14,6 +20,8 @@ values    = [1..9]
 
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
+
+
 
 showDgt :: Value -> String
 showDgt 0 = " "
@@ -77,25 +85,6 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow is; 
     showBaseRow
     
-    
-    -- +---------+---------+---------+
-    -- | 1  2  3 | 3       |         |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 4 |     | 7|   |  | 3   |   |
-    -- | 2 |     |  |   |  |     | 8 |
-    -- +---------+---------+---------+
-    -- |   | 6   |  |   |5 |     |   |
-    -- |   +-----|--+   +--|-----+   |
-    -- |     9 1 |       6 |         |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 3 |     |  | 7 |1 | 2   |   |
-    -- +---------+---------+---------+
-    -- |   |     |  |   |  | 3   | 1 |
-    -- |   |8    |  | 4 |  |     |   |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 2       |         |         |
-    -- +---------+---------+---------+
-
 type Sudoku = (Row,Column) -> Value
 
 sud2grid :: Sudoku -> Grid
@@ -114,9 +103,19 @@ showSudoku = showGrid . sud2grid
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
+blocksNrc :: [[Int]]
+blocksNrc = [[2..4],[6..8]] 
+
+blNrc :: Int -> [Int]
+blNrc x = concat $ filter (elem x) blocksNrc 
+
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
+  
+subGridNrc :: Sudoku -> (Row,Column) -> [Value]
+subGridNrc s (r,c) = 
+  [ s (r',c') | r' <- blNrc r, c' <- blNrc c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -132,11 +131,17 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
+freeInSubgridNrc :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgridNrc s (r,c) = freeInSeq (subGridNrc s (r,c))
+
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
   (freeInRow s r) 
    `intersect` (freeInColumn s c) 
-   `intersect` (freeInSubgrid s (r,c)) 
+   `intersect` (freeInSubgrid s (r,c))
+   
+freeAtPosNrc s (r,c) = freeAtPos s (r,c) 
+   `intersect` (freeInSubgridNrc s (r,c)) 
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
@@ -152,6 +157,10 @@ colInjective s c = injective vs where
 subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
+   
+subgridNrcInjective :: Sudoku -> (Row,Column) -> Bool
+subgridNrcInjective s (r,c) = injective vs where 
+   vs = filter (/= 0) (subGridNrc s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -161,6 +170,8 @@ consistent s = and $
                 ++
                [ subgridInjective s (r,c) | 
                     r <- [1,4,7], c <- [1,4,7]]
+
+nrcConsistent s = consistent s && and [ subgridNrcInjective s (r,c) | r <- [2,6], c <- [2,6]]
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
@@ -181,6 +192,14 @@ extendNode (s,constraints) (r,c,vs) =
    [(extend s (r,c,v),
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
+         
+
+extendNrcNode :: Node -> Constraint -> [Node]
+extendNrcNode (s,constraintsNrc) (r,c,vs) = 
+   [(extend s (r,c,v),
+     sortBy length3rd $ 
+         pruneNrc (r,c,v) constraintsNrc) | v <- vs ]
+
 
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = 
@@ -188,21 +207,36 @@ length3rd (_,_,zs) (_,_,zs') =
 
 prune :: (Row,Column,Value) 
       -> [Constraint] -> [Constraint]
-prune _ [] = []
+prune _ _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
   | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock (r,c) (x,y) = 
-        (x,y,zs\\[v]) : prune (r,c,v) rest
-  | otherwise = (x,y,zs) : prune (r,c,v) rest
+  | sameblock (r,c) (x,y) =  (x,y,zs\\[v]) : prune (r,c,v) rest
+  | otherwise = (x,y,zs) : prune (r,c,v) rest  
+  
+prune :: (Row,Column,Value) -> [Constraint] -> [Constraint]
+prune = prune' prune
 
+pruneNrc :: (Row,Column,Value) -> [Constraint] -> [Constraint]
+pruneNrc (r,c,v) ((x,y,zs):rest) | sameblockNrc (r,c) (x,y) =  (x,y,zs\\[v]) : prune' pruneNrc (r,c,v) rest
+                                 | otherwise = prune' pruneNrc (r,c,v) ((x,y,zs):rest) 
+  
+  
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+
+sameblockNrc :: (Row,Column) -> (Row,Column) -> Bool
+sameblockNrc (r,c) (x,y) = blNrc r == blNrc x && blNrc c == blNrc y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
               if (not . consistent) s then [] 
               else [(s, constraints s)]
+              
+initNrcNode :: Grid -> [Node]
+initNrcNode gr = let s = grid2sud gr in 
+                 if (not . nrcConsistent) s then [] 
+                 else [(s, constraintsNrc s)]
 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
@@ -212,6 +246,11 @@ openPositions s = [ (r,c) | r <- positions,
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
     [(r,c, freeAtPos s (r,c)) | 
+                       (r,c) <- openPositions s ]
+                       
+constraintsNrc :: Sudoku -> [Constraint] 
+constraintsNrc s = sortBy length3rd 
+    [(r,c, freeAtPosNrc s (r,c)) | 
                        (r,c) <- openPositions s ]
 
 search :: (node -> [node]) 
@@ -224,15 +263,28 @@ search succ goal (x:xs)
 solveNs :: [Node] -> [Node]
 solveNs = search succNode solved 
 
+solveNrcs :: [Node] -> [Node]
+solveNrcs = search succNrcNode solved 
+
 succNode :: Node -> [Node]
 succNode (s,[]) = []
 succNode (s,p:ps) = extendNode (s,ps) p 
 
+succNrcNode :: Node -> [Node]
+succNrcNode (s,[]) = []
+succNrcNode (s,p:ps) = extendNrcNode (s,ps) p 
+
 solveAndShow :: Grid -> IO[()]
 solveAndShow gr = solveShowNs (initNode gr)
 
+solveAndShowNrc :: Grid -> IO[()]
+solveAndShowNrc gr = solveShowNrcs (initNrcNode gr)
+
 solveShowNs :: [Node] -> IO[()]
 solveShowNs ns = sequence $ fmap showNode (solveNs ns)
+
+solveShowNrcs :: [Node] -> IO[()]
+solveShowNrcs ns = sequence $ fmap showNode (solveNrcs ns)
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
@@ -288,3 +340,48 @@ example5 = [[1,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,7,0,0],
             [0,0,0,0,0,0,0,8,0],
             [0,0,0,0,0,0,0,0,9]]
+
+nrcExcercise3 :: Grid
+nrcExcercise3 =  [[0,0,0,3,0,0,0,0,0],
+                  [0,0,0,7,0,0,3,0,0],
+                  [2,0,0,0,0,0,0,0,8],
+                  [0,0,6,0,0,5,0,0,0],
+                  [0,9,1,6,0,0,0,0,0],
+                  [3,0,0,0,7,1,2,0,0],
+                  [0,0,0,0,0,0,0,3,1],
+                  [0,8,0,0,4,0,0,0,0],
+                  [0,0,2,0,0,0,0,0,0]]
+            
+--http://www.hoeheethet.com/sudoku/sudoku.php
+nrcExampleEasy :: Grid
+nrcExampleEasy =  [[0,7,0,0,0,0,0,4,0],
+                   [2,1,0,0,6,0,0,8,0],
+                   [8,0,6,7,0,0,5,2,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,1,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [6,8,0,0,0,0,0,0,9],
+                   [3,0,5,0,2,0,7,0,0],
+                   [0,4,0,0,0,0,0,0,0]]
+
+nrcExampleMedium :: Grid
+nrcExampleMedium = [[0,0,6,0,7,8,2,3,0],
+                    [0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,2,0,9,0],
+                    [0,0,0,0,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,5,0],
+                    [0,0,7,0,0,0,0,0,0],
+                    [1,0,0,5,0,0,0,0,9],
+                    [4,3,0,0,8,0,7,0,6]]
+               
+nrcExampleHard :: Grid
+nrcExampleHard = [[0,7,0,0,0,0,0,4,0],
+                  [2,1,0,0,6,0,0,8,0],
+                  [8,0,6,7,0,0,5,2,0],
+                  [0,0,0,0,0,0,0,0,0],
+                  [0,0,0,0,0,1,0,0,0],
+                  [0,0,0,0,0,0,0,0,0],
+                  [6,8,0,0,0,0,0,0,9],
+                  [3,0,5,0,2,0,7,0,0],
+                  [0,4,0,0,0,0,0,0,0]]
