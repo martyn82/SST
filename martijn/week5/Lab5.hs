@@ -34,3 +34,9 @@ split xs = let
         in
         (take n xs, drop n xs)
 
+-- assertive version of divide and conquer merge sort
+mergeSrt'A :: Ord a => [a] -> [a]
+mergeSrt'A = post1 sorted
+             $ assert1 intersectProp
+             $ mergeSrt'
+
