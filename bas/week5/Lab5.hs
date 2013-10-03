@@ -3,6 +3,8 @@ module Lab5
 where
 
 import Week5;
+import GenericSudoku;
+import RandomSudoku;
 import Data.List;
 
 
@@ -148,6 +150,8 @@ extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
 type Constraint = (Row,Column,[Value])
 
 type Node = (Sudoku,[Constraint])
+
+
 
 showNode :: Node -> IO()
 showNode = showSudoku . fst

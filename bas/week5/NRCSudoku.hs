@@ -15,7 +15,7 @@ type Value  = Int
 type Grid   = [[Value]]
 
 positions, values :: [Int]
-positions = [1..9]
+positions = [1..9]  
 values    = [1..9] 
 
 blocks :: [[Int]]
