@@ -210,6 +210,9 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
+blocksNRC :: [[Int]]
+blocksNRC = [[2..4],[6..8]]
+
 showDgt :: Value -> String
 showDgt 0 = " "
 showDgt d = show d
@@ -258,9 +261,16 @@ showSudoku = showGrid . sud2grid
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks 
 
+blNRC :: Int -> [Int]
+blNRC x = concat $ filter (elem x) blocksNRC 
+
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
+
+subGridNRC :: Sudoku -> (Row,Column) -> [Value]
+subGridNRC s (r,c) = 
+  [ s (r',c') | r' <- blNRC r, c' <- blNRC c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -276,11 +286,15 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
+freeInSubgridNRC :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgridNRC s (r,c) = freeInSeq (subGridNRC s (r,c))
+
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
   (freeInRow s r) 
    `intersect` (freeInColumn s c) 
    `intersect` (freeInSubgrid s (r,c)) 
+   `intersect` (freeInSubgridNRC s (r,c)) 
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
@@ -297,14 +311,19 @@ subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
 
+subgridInjectiveNRC :: Sudoku -> (Row,Column) -> Bool
+subgridInjectiveNRC s (r,c) = injective vs where 
+   vs = filter (/= 0) (subGridNRC s (r,c))
+
 consistent :: Sudoku -> Bool
 consistent s = and $
                [ rowInjective s r |  r <- positions ]
                 ++
                [ colInjective s c |  c <- positions ]
                 ++
-               [ subgridInjective s (r,c) | 
-                    r <- [1,4,7], c <- [1,4,7]]
+               [ subgridInjective s ((head rs), (head cs)) | rs <- blocks, cs <- blocks]
+                ++
+               [ subgridInjectiveNRC s ((head rs), (head cs)) | rs <- blocksNRC, cs <- blocksNRC]
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
@@ -334,14 +353,17 @@ prune :: (Row,Column,Value)
       -> [Constraint] -> [Constraint]
 prune _ [] = []
 prune (r,c,v) ((x,y,zs):rest)
-  | r == x = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock (r,c) (x,y) = 
-        (x,y,zs\\[v]) : prune (r,c,v) rest
-  | otherwise = (x,y,zs) : prune (r,c,v) rest
+  | r == x                   = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | c == y                   = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
+  | otherwise                = (x,y,zs) : prune (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
+
+sameblockNRC :: (Row,Column) -> (Row,Column) -> Bool
+sameblockNRC (r,c) (x,y) = blNRC r == blNRC x && blNRC c == blNRC y 
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
