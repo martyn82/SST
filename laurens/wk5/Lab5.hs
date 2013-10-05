@@ -60,8 +60,34 @@ nrcExample1 = [[0,0,0,3,0,0,0,0,0],
 nrcSolution1 = solveAndShow nrcExample1
 
 -- Exercise 4: Time spent 1 hours
-genRandomNRCSudoku :: IO ()
+genRandomNRCSudoku :: IO Node
 genRandomNRCSudoku = do [r] <- rsolveNs [emptyN]
                         s  <- genProblem r
-                        showNode s
+                        return s
 
+-- Exercise 5: Time spent
+-- Minimal: Assume that when we remove a number from the sudoku, the sudoku becomes non-unique and that this non-uniqueness does not change when we remove another number from the new sudoku.
+nrcSudokuIsMinimal :: Node -> Bool
+nrcSudokuIsMinimal n = and [not $ uniqueSol $ eraseN n p | p <- xs]
+                       where xs = filledPositions (fst n)
+
+-- Minimal: Check if the sudoku yields a unique solution when a subset of the filled out numbers is used.
+-- Sadly this does not terminate. I cannot proof however that removing only item is minimal. It might be that by removing two items, the puzzle becomes minimal again..
+nrcSudokuIsMinimal2 :: Node -> Bool
+nrcSudokuIsMinimal2 n = and [not $ uniqueSol $ removePositions n ps | ps <- xss]
+                        where xs = filledPositions (fst n)
+                              xss = (tail . subsequences) xs
+
+removePositions :: Node -> [(Row,Column)] -> Node
+removePositions n [] = n
+removePositions n (x:xs) = removePositions (eraseN n x) xs
+
+testNRCSudoku = testNRCSudokuProps [nrcSudokuIsMinimal]
+
+testNRCSudokuProps :: [(Node -> Bool)] -> IO ()
+testNRCSudokuProps ps = do s <- genRandomNRCSudoku
+                           putStrLn ("To test:")
+                           showNode s
+                           if and [p s | p <- ps]
+                           then print ("passed")
+                           else error ("failed")
