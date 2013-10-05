@@ -3,6 +3,7 @@ module Lab5
 where
 import Data.List
 import Week5
+import RandomSudoku
 
 -- Exercise 1 : Time spent 1 hour
 mergeSrt :: Ord a => [a] -> [a]
@@ -57,3 +58,10 @@ nrcExample1 = [[0,0,0,3,0,0,0,0,0],
                [0,0,2,0,0,0,0,0,0]]
 
 nrcSolution1 = solveAndShow nrcExample1
+
+-- Exercise 4: Time spent 1 hours
+genRandomNRCSudoku :: IO ()
+genRandomNRCSudoku = do [r] <- rsolveNs [emptyN]
+                        s  <- genProblem r
+                        showNode s
+
