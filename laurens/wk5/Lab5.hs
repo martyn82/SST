@@ -65,7 +65,7 @@ genRandomNRCSudoku = do [r] <- rsolveNs [emptyN]
                         s  <- genProblem r
                         return s
 
--- Exercise 5: Time spent
+-- Exercise 5: Time spent 2 hours
 -- Minimal: Assume that when we remove a number from the sudoku, the sudoku becomes non-unique and that this non-uniqueness does not change when we remove another number from the new sudoku.
 nrcSudokuIsMinimal :: Node -> Bool
 nrcSudokuIsMinimal n = and [not $ uniqueSol $ eraseN n p | p <- xs]
