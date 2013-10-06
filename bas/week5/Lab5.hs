@@ -81,6 +81,10 @@ mergeSrtA' = post1   sorted "output should be sorted"
 -- Excercise 4
 -- To test, use randomNrc and randomNormal
 
+-- Excercise 5
+sudokuIsMinimal rs n = and [not $ uniqueSol rs $ eraseN rs n p | p <- xs]
+                        where xs = filledPositions (fst n)
+
 
 
 

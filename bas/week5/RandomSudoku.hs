@@ -113,5 +113,10 @@ main show rs = do [r] <- rsolveNs rs [emptyN rs]
                   showNode show s
                   solveShowNs show rs [s]
 
-randomNrc    = main showGridNrc nrc
-randomNormal = main showGrid normal
+showRandomNrc    = main showGridNrc nrc
+showRandomNormal = main showGrid normal
+
+randomNode :: RuleSet -> IO Node
+randomNode rs = do [r] <- rsolveNs rs [emptyN rs]
+                   s <- genProblem rs r
+                   return s
