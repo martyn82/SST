@@ -57,7 +57,7 @@ nrcExample1 = [[0,0,0,3,0,0,0,0,0],
                [0,8,0,0,4,0,0,0,0],
                [0,0,2,0,0,0,0,0,0]]
 
-nrcSolution1 = solveAndShow nrcExample1
+nrcSolution1 = solveAndShowNRC nrcExample1
 
 -- Exercise 4: Time spent 1 hours
 genRandomNRCSudoku :: IO Node
