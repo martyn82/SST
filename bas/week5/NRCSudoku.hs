@@ -27,63 +27,7 @@ showDgt :: Value -> String
 showDgt 0 = " "
 showDgt d = show d
 
-showRow :: [Value] -> IO()
-showRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
- do  putChar '|'         ; putChar ' '
-     putStr (showDgt a1) ; putStr "  "
-     putStr (showDgt a2) ; putStr "  "
-     putStr (showDgt a3) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showDgt a4) ; putStr "  "
-     putStr (showDgt a5) ; putStr "  "
-     putStr (showDgt a6) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showDgt a7) ; putStr "  "
-     putStr (showDgt a8) ; putStr "  "
-     putStr (showDgt a9) ; putChar ' '
-     putChar '|'         ; putChar '\n'
-     
-showSegmentedRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
- do  putChar '|'         ; putChar ' '
-     putStr (showDgt a1) ; putChar ' '
-     putChar '|'         
-     putStr (showDgt a2) ; putStr "  "
-     putStr (showDgt a3) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showDgt a4) ; putStr "| "
-     putStr (showDgt a5) ; putStr " |"
-     putStr (showDgt a6) ; putChar ' '
-     putChar '|'         ; putChar ' '
-     putStr (showDgt a7) ; putStr "  "
-     putStr (showDgt a8) ; putStr "| "
-     putStr (showDgt a9) ; putChar ' '
-     putChar '|'         ; putChar '\n'
 
-showBaseRow :: IO ()
-showBaseRow = putStrLn ("+---------+---------+---------+")
-
-showSegment :: IO ()
-showSegment = putStrLn ("|   +-----|--+   +--|-----+   |")
-
-showGrid :: Grid -> IO()
-showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
- do showBaseRow
-    showRow as; 
-    showSegment
-    showSegmentedRow bs;
-    showSegmentedRow cs;
-    showBaseRow
-    showSegmentedRow ds;
-    showSegment
-    showRow es;
-    showSegment
-    showSegmentedRow fs;
-    showBaseRow
-    showSegmentedRow gs;
-    showSegmentedRow hs;
-    showSegment
-    showRow is; 
-    showBaseRow
     
 type Sudoku = (Row,Column) -> Value
 

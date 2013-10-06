@@ -70,7 +70,7 @@ genRandomSudoku :: RuleSet -> IO Node
 genRandomSudoku rs = do [r] <- rsolveNs rs [emptyN rs]
                         return r
 
-randomS rs = genRandomSudoku rs >>= showNode
+randomS show rs = genRandomSudoku rs >>= (showNode show)
 
 uniqueSol :: RuleSet -> Node -> Bool
 uniqueSol rs node = singleton (solveNs rs [node]) where 
@@ -106,11 +106,12 @@ genProblem rs n = do ys <- randomize xs
                      return (minimalize rs n ys)
    where xs = filledPositions (fst n)
 
-main :: RuleSet -> IO ()
-main rs = do [r] <- rsolveNs rs [emptyN rs]
-             showNode r
-             s  <- genProblem rs r
-             showNode s
-             solveShowNs rs [s]
+main :: (Grid -> IO ()) -> RuleSet -> IO ()
+main show rs = do [r] <- rsolveNs rs [emptyN rs]
+                  showNode show r
+                  s <- genProblem rs r
+                  showNode show s
+                  solveShowNs show rs [s]
 
-             
+randomNrc    = main showGridNrc nrc
+randomNormal = main showGrid normal

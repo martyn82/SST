@@ -6,7 +6,7 @@ type Row                = Int
 type Column             = Int 
 type Value              = Int
 type Grid               = [[Value]]
-type BlockGroup = [([Row], [Column])]
+type BlockGroup 	= [([Row], [Column])]
 type RuleSet    = [BlockGroup]
 
 values    = [1..9]
@@ -85,15 +85,15 @@ type Constraint = (Row,Column,[Value])
 
 type Node = (Sudoku,[Constraint])
 
-showNode :: Node -> IO()
-showNode = showSudoku . fst
+showNode :: (Grid -> IO ()) -> Node -> IO()
+showNode show = (showSudoku show). fst
 
 
-showNodeAndDiff :: ([Node], Difficulty) -> IO ()
-showNodeAndDiff (ns, d) = do showDiff d
-                             mapM_ showNode ns
+showNodeAndDiff :: (Grid -> IO ()) -> ([Node], Difficulty) -> IO ()
+showNodeAndDiff show (ns, d) = do showDiff d
+                                  mapM_ (\x -> showNode show x)  ns
 
-showSudoku = showGrid . sud2grid
+showSudoku show = show . sud2grid
 
 solved  :: Node -> Bool
 solved = null . snd
@@ -181,11 +181,11 @@ succNode :: RuleSet -> Node -> [Node]
 succNode _ (s,[]) = []
 succNode rs (s,p:ps) = extendNode rs (s,ps) p 
 
-solveAndShow :: RuleSet -> Grid -> IO ()
-solveAndShow rs gr = solveShowNs rs (initNode gr rs)
+solveAndShow :: (Grid -> IO ()) -> RuleSet -> Grid -> IO ()
+solveAndShow show rs gr = solveShowNs show rs (initNode gr rs)
 
-solveShowNs :: RuleSet -> [Node] -> IO()
-solveShowNs rs ns = showNodeAndDiff (solveNs rs ns)
+solveShowNs :: (Grid -> IO ()) -> RuleSet -> [Node] -> IO()
+solveShowNs show rs ns = showNodeAndDiff show (solveNs rs ns)
 
 
 showDgt :: Value -> String
@@ -218,6 +218,68 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showRow gs; showRow hs; showRow is
     putStrLn ("+-------+-------+-------+")
 
+showRowNrc :: [Value] -> IO()
+showRowNrc [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
+ do  putChar '|'         ; putChar ' '
+     putStr (showDgt a1) ; putStr "  "
+     putStr (showDgt a2) ; putStr "  "
+     putStr (showDgt a3) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showDgt a4) ; putStr "  "
+     putStr (showDgt a5) ; putStr "  "
+     putStr (showDgt a6) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showDgt a7) ; putStr "  "
+     putStr (showDgt a8) ; putStr "  "
+     putStr (showDgt a9) ; putChar ' '
+     putChar '|'         ; putChar '\n'
+     
+showSegmentedRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = 
+ do  putChar '|'         ; putChar ' '
+     putStr (showDgt a1) ; putChar ' '
+     putChar '|'         
+     putStr (showDgt a2) ; putStr "  "
+     putStr (showDgt a3) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showDgt a4) ; putStr "| "
+     putStr (showDgt a5) ; putStr " |"
+     putStr (showDgt a6) ; putChar ' '
+     putChar '|'         ; putChar ' '
+     putStr (showDgt a7) ; putStr "  "
+     putStr (showDgt a8) ; putStr "| "
+     putStr (showDgt a9) ; putChar ' '
+     putChar '|'         ; putChar '\n'
+
+showBaseRow :: IO ()
+showBaseRow = putStrLn ("+---------+---------+---------+")
+
+showSegment :: IO ()
+showSegment = putStrLn ("|   +-----|--+   +--|-----+   |")
+
+showGridNrc :: Grid -> IO()
+showGridNrc [as,bs,cs,ds,es,fs,gs,hs,is] =
+ do showBaseRow
+    showRowNrc as; 
+    showSegment
+    showSegmentedRow bs;
+    showSegmentedRow cs;
+    showBaseRow
+    showSegmentedRow ds;
+    showSegment
+    showRowNrc es;
+    showSegment
+    showSegmentedRow fs;
+    showBaseRow
+    showSegmentedRow gs;
+    showSegmentedRow hs;
+    showSegment
+    showRowNrc is; 
+    showBaseRow
+	
+	
+solveAndShowNormal = solveAndShow showGrid normal
+solveAndShowNrc    = solveAndShow showGridNrc nrc	
+	
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
