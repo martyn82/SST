@@ -13,6 +13,9 @@ import System.Random
 emptyN :: Node
 emptyN = (\ _ -> 0,constraints (\ _ -> 0))
 
+emptyNNRC :: Node
+emptyNNRC = (\ _ -> 0,constraintsNRC (\ _ -> 0))
+
 getRandomInt :: Int -> IO Int
 getRandomInt n = getStdRandom (randomR (0,n))
 
@@ -47,9 +50,18 @@ rsuccNode (s,cs) = do xs <- getRandomCnstr cs
                         then return []
                         else return (extendNode (s,cs\\xs) (head xs))
 
+rsuccNodeNRC :: Node -> IO [Node]
+rsuccNodeNRC (s,cs) = do xs <- getRandomCnstr cs
+                         if null xs 
+                           then return []
+                           else return (extendNodeNRC (s,cs\\xs) (head xs))
+
 -- find a random solution for a member of 
 rsolveNs :: [Node] -> IO [Node]
 rsolveNs ns = rsearch rsuccNode solved (return ns)
+
+rsolveNsNRC :: [Node] -> IO [Node]
+rsolveNsNRC ns = rsearch rsuccNodeNRC solved (return ns)
 
 rsearch :: (node -> IO [node]) 
             -> (node -> Bool) -> IO [node] -> IO [node]
@@ -69,6 +81,10 @@ rsearch succ goal ionodes =
 genRandomSudoku :: IO Node
 genRandomSudoku = do [r] <- rsolveNs [emptyN]
                      return r
+
+genRandomSudokuNRC :: IO Node
+genRandomSudokuNRC = do [r] <- rsolveNsNRC [emptyNNRC]
+                        return r
 
 randomS = genRandomSudoku >>= showNode
 

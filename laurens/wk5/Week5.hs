@@ -294,7 +294,9 @@ freeAtPos s (r,c) =
   (freeInRow s r) 
    `intersect` (freeInColumn s c) 
    `intersect` (freeInSubgrid s (r,c)) 
-   `intersect` (freeInSubgridNRC s (r,c)) 
+
+freeAtPosNRC :: Sudoku -> (Row,Column) -> [Value]
+freeAtPosNRC s rc = intersect (freeAtPos s rc) (freeInSubgridNRC s rc)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
@@ -322,8 +324,12 @@ consistent s = and $
                [ colInjective s c |  c <- positions ]
                 ++
                [ subgridInjective s ((head rs), (head cs)) | rs <- blocks, cs <- blocks]
-                ++
-               [ subgridInjectiveNRC s ((head rs), (head cs)) | rs <- blocksNRC, cs <- blocksNRC]
+
+consistentNRC :: Sudoku -> Bool
+consistentNRC s = and $
+                  [consistent s]
+                  ++
+                  [ subgridInjectiveNRC s ((head rs), (head cs)) | rs <- blocksNRC, cs <- blocksNRC]
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
@@ -345,6 +351,12 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
+extendNodeNRC :: Node -> Constraint -> [Node]
+extendNodeNRC (s,constraints) (r,c,vs) = 
+   [(extend s (r,c,v),
+     sortBy length3rd $ 
+         pruneNRC (r,c,v) constraints) | v <- vs ]
+
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = 
   compare (length zs) (length zs')
@@ -356,8 +368,16 @@ prune (r,c,v) ((x,y,zs):rest)
   | r == x                   = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y                   = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise                = (x,y,zs) : prune (r,c,v) rest
+
+pruneNRC :: (Row,Column,Value) -> [Constraint] -> [Constraint]
+pruneNRC _ [] = []
+pruneNRC (r,c,v) ((x,y,zs):rest)
+  | r == x                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | c == y                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | otherwise                = (x,y,zs) : pruneNRC (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
@@ -370,6 +390,11 @@ initNode gr = let s = grid2sud gr in
               if (not . consistent) s then [] 
               else [(s, constraints s)]
 
+initNodeNRC :: Grid -> [Node]
+initNodeNRC gr = let s = grid2sud gr in 
+                 if (not . consistentNRC) s then [] 
+                 else [(s, constraintsNRC s)]
+
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
                             c <- positions, 
@@ -378,6 +403,11 @@ openPositions s = [ (r,c) | r <- positions,
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
     [(r,c, freeAtPos s (r,c)) | 
+                       (r,c) <- openPositions s ]
+
+constraintsNRC :: Sudoku -> [Constraint] 
+constraintsNRC s = sortBy length3rd 
+    [(r,c, freeAtPosNRC s (r,c)) | 
                        (r,c) <- openPositions s ]
 
 search :: (node -> [node]) 
@@ -390,15 +420,28 @@ search succ goal (x:xs)
 solveNs :: [Node] -> [Node]
 solveNs = search succNode solved 
 
+solveNsNRC :: [Node] -> [Node]
+solveNsNRC = search succNodeNRC solved 
+
 succNode :: Node -> [Node]
 succNode (s,[]) = []
 succNode (s,p:ps) = extendNode (s,ps) p 
 
+succNodeNRC :: Node -> [Node]
+succNodeNRC (s,[]) = []
+succNodeNRC (s,p:ps) = extendNodeNRC (s,ps) p 
+
 solveAndShow :: Grid -> IO[()]
 solveAndShow gr = solveShowNs (initNode gr)
 
+solveAndShowNRC :: Grid -> IO[()]
+solveAndShowNRC gr = solveShowNsNRC (initNodeNRC gr)
+
 solveShowNs :: [Node] -> IO[()]
 solveShowNs ns = sequence $ fmap showNode (solveNs ns)
+
+solveShowNsNRC :: [Node] -> IO[()]
+solveShowNsNRC ns = sequence $ fmap showNode (solveNsNRC ns)
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
