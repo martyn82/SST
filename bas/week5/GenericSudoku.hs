@@ -281,6 +281,16 @@ solveAndShowNormal = solveAndShow showGrid normal
 solveAndShowNrc    = solveAndShow showGridNrc nrc	
 	
 
+-- Excercise 3
+-- To test the solver and difficulty rating use one of the following statements:
+-- solveAndShowNormal example1
+-- solveAndShowNormal onlineExampleEasy
+-- solveAndShowNormal onlineExampleMedium
+-- solveAndShowNormal onlineExampleExtreme
+-- solveAndShowNrc nrcExampleEasy
+-- solveAndShowNrc nrcExampleMedium
+-- solveAndShowNrc nrcExampleHard
+
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
             [6,0,0,1,9,5,0,0,0],
