@@ -2,6 +2,7 @@ module NRC
 where
 
 import Sudoku
+import RandomSudoku
 
 -- the NRC-type Sudoku from the exercise to solve
 exercise1 :: Grid
@@ -15,7 +16,7 @@ exercise1= [[0,0,0,3,0,0,0,0,0],
             [0,8,0,0,4,0,0,0,0],
             [0,0,2,0,0,0,0,0,0]]
 
--- Solution to above Sudoku:
+-- Solution to above Sudoku using solveAndShowNRC:
 -- +---------+---------+---------+
 -- | 4  7  8 | 3  9  2 | 6  1  5 |
 -- |   +-----|--+   +--|-----+   |
@@ -33,5 +34,4 @@ exercise1= [[0,0,0,3,0,0,0,0,0],
 -- |   +-----|--+   +--|-----+   |
 -- | 1  4  2 | 5  6  3 | 8  9  7 |
 -- +---------+---------+---------+
-
 

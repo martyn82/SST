@@ -15,8 +15,8 @@ values    = [1..9]
 blocks :: [[Int]]
 blocks = [[1..3],[4..6],[7..9]]
 
-blocks2 :: [[Int]]
-blocks2 = [[2..4],[6..8]]
+blocksNRC :: [[Int]]
+blocksNRC = [[2..4],[6..8]]
 
 showDgt :: Value -> String
 showDgt 0 = " "
@@ -60,8 +60,8 @@ showBaseRow = putStrLn ("+---------+---------+---------+")
 showSegment :: IO ()
 showSegment = putStrLn ("|   +-----|--+   +--|-----+   |")
 
-showGrid :: Grid -> IO()
-showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
+showGridNRC :: Grid -> IO()
+showGridNRC [as,bs,cs,ds,es,fs,gs,hs,is] =
  do showBaseRow
     showRow as; 
     showSegment
@@ -79,26 +79,23 @@ showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
     showSegment
     showRow is; 
     showBaseRow
-    
-    
-    -- +---------+---------+---------+
-    -- | 1  2  3 | 3       |         |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 4 |     | 7|   |  | 3   |   |
-    -- | 2 |     |  |   |  |     | 8 |
-    -- +---------+---------+---------+
-    -- |   | 6   |  |   |5 |     |   |
-    -- |   +-----|--+   +--|-----+   |
-    -- |     9 1 |       6 |         |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 3 |     |  | 7 |1 | 2   |   |
-    -- +---------+---------+---------+
-    -- |   |     |  |   |  | 3   | 1 |
-    -- |   |8    |  | 4 |  |     |   |
-    -- |   +-----|--+   +--|-----+   |
-    -- | 2       |         |         |
-    -- +---------+---------+---------+
 
+showGrid :: Grid -> IO()
+showGrid [as,bs,cs,ds,es,fs,gs,hs,is] =
+  do showBaseRow
+     showRow as;
+     showRow bs;
+     showRow cs;
+     showBaseRow
+     showRow ds;
+     showRow es;
+     showRow fs;
+     showBaseRow
+     showRow gs;
+     showRow hs;
+     showRow is;
+     showBaseRow
+    
 type Sudoku = (Row,Column) -> Value
 
 sud2grid :: Sudoku -> Grid
@@ -114,19 +111,22 @@ grid2sud gr = \ (r,c) -> pos gr (r,c)
 showSudoku :: Sudoku -> IO()
 showSudoku = showGrid . sud2grid
 
+showSudokuNRC :: Sudoku -> IO()
+showSudokuNRC = showGridNRC . sud2grid
+
 bl :: Int -> [Int]
 bl x = concat $ filter (elem x) blocks
 
-bl2 :: Int -> [Int]
-bl2 x = concat $ filter (elem x) blocks2
+blNRC :: Int -> [Int]
+blNRC x = concat $ filter (elem x) blocksNRC
 
 subGrid :: Sudoku -> (Row,Column) -> [Value]
 subGrid s (r,c) = 
   [ s (r',c') | r' <- bl r, c' <- bl c ]
 
-subGrid2 :: Sudoku -> (Row,Column) -> [Value]
-subGrid2 s (r,c) =
-    [ s (r',c') | r' <- bl2 r, c' <- bl2 c ]
+subGridNRC :: Sudoku -> (Row,Column) -> [Value]
+subGridNRC s (r,c) =
+    [ s (r',c') | r' <- blNRC r, c' <- blNRC c ]
 
 freeInSeq :: [Value] -> [Value]
 freeInSeq seq = values \\ seq 
@@ -142,8 +142,8 @@ freeInColumn s c =
 freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
 freeInSubgrid s (r,c) = freeInSeq (subGrid s (r,c))
 
-freeInSubgrid2 :: Sudoku -> (Row,Column) -> [Value]
-freeInSubgrid2 s (r,c) = freeInSeq (subGrid2 s (r,c))
+freeInSubgridNRC :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgridNRC s (r,c) = freeInSeq (subGridNRC s (r,c))
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value]
 freeAtPos s (r,c) = 
@@ -151,11 +151,11 @@ freeAtPos s (r,c) =
    `intersect` (freeInColumn s c) 
    `intersect` (freeInSubgrid s (r,c))
 
-freeAtPos2 :: Sudoku -> (Row,Column) -> [Value]
-freeAtPos2 s (r,c) =
+freeAtPosNRC :: Sudoku -> (Row,Column) -> [Value]
+freeAtPosNRC s (r,c) =
     (freeInRow s r)
         `intersect` (freeInColumn s c)
-        `intersect` (freeInSubgrid2 s (r,c))
+        `intersect` (freeInSubgridNRC s (r,c))
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
@@ -172,9 +172,9 @@ subgridInjective :: Sudoku -> (Row,Column) -> Bool
 subgridInjective s (r,c) = injective vs where 
    vs = filter (/= 0) (subGrid s (r,c))
 
-subgridInjective2 :: Sudoku -> (Row,Column) -> Bool
-subgridInjective2 s (r,c) = injective vs where
-    vs = filter (/= 0) (subGrid2 s (r,c))
+subgridInjectiveNRC :: Sudoku -> (Row,Column) -> Bool
+subgridInjectiveNRC s (r,c) = injective vs where
+    vs = filter (/= 0) (subGridNRC s (r,c))
 
 consistent :: Sudoku -> Bool
 consistent s = and $
@@ -184,9 +184,9 @@ consistent s = and $
                 ++
                [ subgridInjective s (r,c) | 
                     r <- [1,4,7], c <- [1,4,7]]
-               ++
-               [ subgridInjective2 s (r,c) |
-                    r <- [2,6], c <- [2,6]]
+
+consistentNRC :: Sudoku -> Bool
+consistentNRC s = consistent s && and [ subgridInjectiveNRC s (r,c) | r <- [2,6], c <- [2,6]]
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
@@ -199,6 +199,9 @@ type Node = (Sudoku,[Constraint])
 showNode :: Node -> IO()
 showNode = showSudoku . fst
 
+showNodeNRC :: Node -> IO()
+showNodeNRC = showSudokuNRC . fst
+
 solved  :: Node -> Bool
 solved = null . snd
 
@@ -207,6 +210,12 @@ extendNode (s,constraints) (r,c,vs) =
    [(extend s (r,c,v),
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
+
+extendNodeNRC :: Node -> Constraint -> [Node]
+extendNodeNRC (s,constraintsNRC) (r,c,vs) =
+    [(extend s (r,c,v),
+      sortBy length3rd $
+          pruneNRC (r,c,v) constraintsNRC) | v <- vs ] 
 
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = 
@@ -220,20 +229,32 @@ prune (r,c,v) ((x,y,zs):rest)
   | c == y = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y) = 
         (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblock2 (r,c) (x,y) =
-        (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise = (x,y,zs) : prune (r,c,v) rest
+
+pruneNRC :: (Row,Column,Value)
+         -> [Constraint] -> [Constraint]
+pruneNRC _ [] = []
+pruneNRC (r,c,v) ((x,y,zs):rest) | r == x                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+                                 | c == y                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+                                 | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+                                 | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+                                 | otherwise                = (x,y,zs) : pruneNRC (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y
 
-sameblock2 :: (Row,Column) -> (Row,Column) -> Bool
-sameblock2 (r,c) (x,y) = bl2 r == bl2 x && bl2 c == bl2 y
+sameblockNRC :: (Row,Column) -> (Row,Column) -> Bool
+sameblockNRC (r,c) (x,y) = blNRC r == blNRC x && blNRC c == blNRC y
 
 initNode :: Grid -> [Node]
 initNode gr = let s = grid2sud gr in 
               if (not . consistent) s then [] 
               else [(s, constraints s)]
+
+initNodeNRC :: Grid -> [Node]
+initNodeNRC gr = let s = grid2sud gr in
+                 if (not . consistentNRC) s then []
+                 else [(s, constraintsNRC s)]
 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
@@ -245,6 +266,11 @@ constraints s = sortBy length3rd
     [(r,c, freeAtPos s (r,c)) | 
                        (r,c) <- openPositions s ]
 
+constraintsNRC :: Sudoku -> [Constraint]
+constraintsNRC s = sortBy length3rd
+    [(r,c, freeAtPosNRC s (r,c)) |
+                          (r,c) <- openPositions s ]
+
 search :: (node -> [node]) 
        -> (node -> Bool) -> [node] -> [node]
 search succ goal [] = []
@@ -255,15 +281,28 @@ search succ goal (x:xs)
 solveNs :: [Node] -> [Node]
 solveNs = search succNode solved 
 
+solveNRCs :: [Node] -> [Node]
+solveNRCs = search succNodeNRC solved
+
 succNode :: Node -> [Node]
 succNode (s,[]) = []
 succNode (s,p:ps) = extendNode (s,ps) p 
 
+succNodeNRC :: Node -> [Node]
+succNodeNRC (s,[]) = []
+succNodeNRC (s,p:ps) = extendNodeNRC (s,ps) p
+
 solveAndShow :: Grid -> IO[()]
 solveAndShow gr = solveShowNs (initNode gr)
 
+solveAndShowNRC :: Grid -> IO[()]
+solveAndShowNRC gr = solveShowNRCs (initNodeNRC gr)
+
 solveShowNs :: [Node] -> IO[()]
 solveShowNs ns = sequence $ fmap showNode (solveNs ns)
+
+solveShowNRCs :: [Node] -> IO[()]
+solveShowNRCs ns = sequence $ fmap showNodeNRC (solveNRCs ns)
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
