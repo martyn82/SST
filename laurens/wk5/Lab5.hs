@@ -61,9 +61,14 @@ nrcSolution1 = solveAndShowNRC nrcExample1
 
 -- Exercise 4: Time spent 1 hours
 genRandomNRCSudoku :: IO Node
-genRandomNRCSudoku = do [r] <- rsolveNs [emptyN]
-                        s  <- genProblem r
+genRandomNRCSudoku = do r <- genRandomSudokuNRC
+                        s <- genProblem r
+                        showNode s
                         return s
+
+solveRandomNRCSudoku = do s <- genRandomNRCSudoku
+                          solveShowNsNRC [s]
+
 
 -- Exercise 5: Time spent 2 hours
 -- Minimal: Assume that when we remove a number from the sudoku, the sudoku becomes non-unique and that this non-uniqueness does not change when we remove another number from the new sudoku.

@@ -351,6 +351,12 @@ extendNode (s,constraints) (r,c,vs) =
      sortBy length3rd $ 
          prune (r,c,v) constraints) | v <- vs ]
 
+extendNodeNRC :: Node -> Constraint -> [Node]
+extendNodeNRC (s,constraints) (r,c,vs) = 
+   [(extend s (r,c,v),
+     sortBy length3rd $ 
+         pruneNRC (r,c,v) constraints) | v <- vs ]
+
 length3rd :: (a,b,[c]) -> (a,b,[c]) -> Ordering
 length3rd (_,_,zs) (_,_,zs') = 
   compare (length zs) (length zs')
@@ -362,8 +368,16 @@ prune (r,c,v) ((x,y,zs):rest)
   | r == x                   = (x,y,zs\\[v]) : prune (r,c,v) rest
   | c == y                   = (x,y,zs\\[v]) : prune (r,c,v) rest
   | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : prune (r,c,v) rest
-  | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : prune (r,c,v) rest
   | otherwise                = (x,y,zs) : prune (r,c,v) rest
+
+pruneNRC :: (Row,Column,Value) -> [Constraint] -> [Constraint]
+pruneNRC _ [] = []
+pruneNRC (r,c,v) ((x,y,zs):rest)
+  | r == x                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | c == y                   = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | sameblock (r,c) (x,y)    = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | sameblockNRC (r,c) (x,y) = (x,y,zs\\[v]) : pruneNRC (r,c,v) rest
+  | otherwise                = (x,y,zs) : pruneNRC (r,c,v) rest
 
 sameblock :: (Row,Column) -> (Row,Column) -> Bool
 sameblock (r,c) (x,y) = bl r == bl x && bl c == bl y 
@@ -406,18 +420,28 @@ search succ goal (x:xs)
 solveNs :: [Node] -> [Node]
 solveNs = search succNode solved 
 
+solveNsNRC :: [Node] -> [Node]
+solveNsNRC = search succNodeNRC solved 
+
 succNode :: Node -> [Node]
 succNode (s,[]) = []
 succNode (s,p:ps) = extendNode (s,ps) p 
+
+succNodeNRC :: Node -> [Node]
+succNodeNRC (s,[]) = []
+succNodeNRC (s,p:ps) = extendNodeNRC (s,ps) p 
 
 solveAndShow :: Grid -> IO[()]
 solveAndShow gr = solveShowNs (initNode gr)
 
 solveAndShowNRC :: Grid -> IO[()]
-solveAndShowNRC gr = solveShowNs (initNodeNRC gr)
+solveAndShowNRC gr = solveShowNsNRC (initNodeNRC gr)
 
 solveShowNs :: [Node] -> IO[()]
 solveShowNs ns = sequence $ fmap showNode (solveNs ns)
+
+solveShowNsNRC :: [Node] -> IO[()]
+solveShowNsNRC ns = sequence $ fmap showNode (solveNsNRC ns)
 
 example1 :: Grid
 example1 = [[5,3,0,0,7,0,0,0,0],
