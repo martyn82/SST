@@ -171,3 +171,17 @@ Minimal NRC Sudoku problem for above solution:
 sudokuIsMinimal :: RuleSet -> Node -> Bool
 sudokuIsMinimal rs n = and [not $ uniqueSol rs $ eraseN rs n p | p <- xs]
                         where xs = filledPositions (fst n)
+
+             
+runTest    = testMultiple normal [sudokuIsMinimal] 1
+runTestNrc = testMultiple nrc    [sudokuIsMinimal]    1
+
+--normal: 151 tests passed
+--nrc: 3 tests passed (after 1 hour)
+--nrc from laurens: 114 tests passed
+             
+testMultiple rs ps n = do s <- randomNode rs
+                          if and [p rs s | p <- ps]
+                          then do print ((show n) ++ " passed")
+                                  testMultiple rs ps (n + 1)
+                          else error "failed"
