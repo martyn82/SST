@@ -294,7 +294,9 @@ freeAtPos s (r,c) =
   (freeInRow s r) 
    `intersect` (freeInColumn s c) 
    `intersect` (freeInSubgrid s (r,c)) 
-   `intersect` (freeInSubgridNRC s (r,c)) 
+
+freeAtPosNRC :: Sudoku -> (Row,Column) -> [Value]
+freeAtPosNRC s rc = intersect (freeAtPos s rc) (freeInSubgridNRC s rc)
 
 injective :: Eq a => [a] -> Bool
 injective xs = nub xs == xs
@@ -322,8 +324,12 @@ consistent s = and $
                [ colInjective s c |  c <- positions ]
                 ++
                [ subgridInjective s ((head rs), (head cs)) | rs <- blocks, cs <- blocks]
-                ++
-               [ subgridInjectiveNRC s ((head rs), (head cs)) | rs <- blocksNRC, cs <- blocksNRC]
+
+consistentNRC :: Sudoku -> Bool
+consistentNRC s = and $
+                  [consistent s]
+                  ++
+                  [ subgridInjectiveNRC s ((head rs), (head cs)) | rs <- blocksNRC, cs <- blocksNRC]
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) (i,j) | (i,j) == (r,c) = v
@@ -370,6 +376,11 @@ initNode gr = let s = grid2sud gr in
               if (not . consistent) s then [] 
               else [(s, constraints s)]
 
+initNodeNRC :: Grid -> [Node]
+initNodeNRC gr = let s = grid2sud gr in 
+                 if (not . consistentNRC) s then [] 
+                 else [(s, constraintsNRC s)]
+
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = [ (r,c) | r <- positions,  
                             c <- positions, 
@@ -378,6 +389,11 @@ openPositions s = [ (r,c) | r <- positions,
 constraints :: Sudoku -> [Constraint] 
 constraints s = sortBy length3rd 
     [(r,c, freeAtPos s (r,c)) | 
+                       (r,c) <- openPositions s ]
+
+constraintsNRC :: Sudoku -> [Constraint] 
+constraintsNRC s = sortBy length3rd 
+    [(r,c, freeAtPosNRC s (r,c)) | 
                        (r,c) <- openPositions s ]
 
 search :: (node -> [node]) 
@@ -396,6 +412,9 @@ succNode (s,p:ps) = extendNode (s,ps) p
 
 solveAndShow :: Grid -> IO[()]
 solveAndShow gr = solveShowNs (initNode gr)
+
+solveAndShowNRC :: Grid -> IO[()]
+solveAndShowNRC gr = solveShowNs (initNodeNRC gr)
 
 solveShowNs :: [Node] -> IO[()]
 solveShowNs ns = sequence $ fmap showNode (solveNs ns)
