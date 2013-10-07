@@ -30,6 +30,7 @@ testCNFNegationOnAtoms (Neg f) = False
 testCNFNegationOnAtoms x = traverse testCNFNegationOnAtoms x
 
 -- - There cannot be Conjunctions in Disjunctions
+-- VVZ: there also cannot be disjunctions in disjunctions, how about testing that?
 testCNFNoCnjInDsj :: Form -> Bool
 testCNFNoCnjInDsj (Dsj fs) = all testCNFNoCnjInDsj' fs
 testCNFNoCnjInDsj x = traverse testCNFNoCnjInDsj x
@@ -59,14 +60,20 @@ testForProperties n ps (f:fs) = if isCNF
 
 -- Test results:
 -- Random formula generator generates formulas like (Dsj []) and (Cnj []). That is a bit weird, but my program crashes on formulas of the kind of (Dsj []). I've added the case "cnf (Dsj []) = Dsj []"
+-- VVZ: where have you added it? I don't see it.
 -- I tend to say that the random formula generator is broken, but the precondition for toCNF is 'any formula'. So I do guess this also includes invalid formulas.
+-- VVZ: a conjunction/disjunction of zero alternatives is a valid construct, since it conforms to the type definition of a 'formula'
+-- VVZ: this is a yet another difference between mathematical notation and the implementation
 --
 -- Later I found out that the random formula generator does not generate arrows.. Too bad I included some tests for that.
 --
 -- "pass on:3"
 -- "pass on:12"
 -- "pass on:*(*(19 8 8 8 16) *(10 19 2 12))"
+-- VVZ: should fail
 -- "pass on:*(1)"
 -- "pass on:*(4 *(12) 5)"
+-- VVZ: should fail
 -- "pass on:*(*(16 12 12 15 18) *(2 6 20 9) *(19) 11 7)"
+-- VVZ: should fail
 -- "10000 tests passed"
