@@ -19,12 +19,16 @@ import Logic
 cnf :: Form -> Form
 cnf (Prop x)      = Prop x
 cnf (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs
-cnf (Cnj fs)      = Cnj $ traverseCnjs (Cnj fs)
-cnf (Dsj (f:fs))  = foldl dist (cnf f) (map cnf fs)
+cnf (Cnj fs)      = Cnj $ flattenCnjs (Cnj fs)
+cnf (Dsj (f:fs))      = Dsj $ flattenDsjs (foldl dist (cnf f) (map cnf fs))
 
-traverseCnjs :: Form -> [Form]
-traverseCnjs (Cnj xs)   = concat $ map traverseCnjs xs
-traverseCnjs x          = [x]
+flattenCnjs :: Form -> [Form]
+flattenCnjs (Cnj xs)   = concat $ map flattenCnjs xs
+flattenCnjs x          = [cnf x]
+
+flattenDsjs :: Form -> [Form]
+flattenDsjs (Dsj xs)   = concat $ map flattenDsjs xs
+flattenDsjs x          = [cnf x]
 
 -- apply distributive law to two formulas in CNF
 -- precondition : inputs are arrow-free formulas in NNF
@@ -113,6 +117,8 @@ cnftests       = [(p           , p),
                   ((Neg p)     , (Neg p)),
                   ((Cnj [Cnj [p,q], q]), (Cnj [p,q,q])),
                   ((Cnj [Cnj [Cnj [Cnj [p,q]]]]), (Cnj [p, q])),
+                  ((Cnj [Dsj [Dsj [p,q], q]]), (Cnj [Dsj [p,q,q]])),
+                  ((Cnj [Dsj [Dsj [Dsj [p,q]]]]), (Cnj [Dsj [p, q]])),
                   ((Cnj [p, q]), (Cnj [p, q])),
                   ((Dsj [p, q]), (Dsj [p, q]))]
 
