@@ -21,9 +21,10 @@ cnf' (Prop x)      = Prop x
 cnf' (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs
 cnf' (Cnj fs)      = Cnj (map cnf' fs)
 cnf' (Dsj (f:fs))  = foldl dist (cnf' f) (map cnf' fs)
-cnf' x             = x
+cnf' x             = x -- added default case, if Cnj/Dsj is empty or invalid input, do nothing
 
-cnf = flatten . cnf' 
+-- Flatten the output of CNF
+cnf = flatten . cnf'
 
 flatten :: Form -> Form
 flatten (Cnj xs) = Cnj $ flattenCnjs (Cnj xs)
