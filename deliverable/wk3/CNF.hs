@@ -17,8 +17,12 @@ import Logic
 cnf :: Form -> Form
 cnf (Prop x)      = Prop x
 cnf (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs
-cnf (Cnj fs)      = Cnj (map cnf fs)
+cnf (Cnj fs)      = Cnj $ traverseCnjs (Cnj fs)
 cnf (Dsj (f:fs))  = foldl dist (cnf f) (map cnf fs)
+
+traverseCnjs :: Form -> [Form]
+traverseCnjs (Cnj xs)   = concat $ map traverseCnjs xs
+traverseCnjs x          = [x]
 
 -- apply distributive law to two formulas in CNF
 -- precondition : inputs are arrow-free formulas in NNF
@@ -105,6 +109,8 @@ isNnf' (Neg (Dsj fs)) = False
 -- conjunctive normal form
 cnftests       = [(p           , p),
                   ((Neg p)     , (Neg p)),
+                  ((Cnj [Cnj [p,q], q]), (Cnj [p,q,q])),
+                  ((Cnj [Cnj [Cnj [Cnj [p,q]]]]), (Cnj [p, q])),
                   ((Cnj [p, q]), (Cnj [p, q])),
                   ((Dsj [p, q]), (Dsj [p, q]))]
 
@@ -127,7 +133,7 @@ isCnf func        = isDsj func
 				  
 -- test cases of distribution of formulas
 disttests      = [((Cnj [p, q]), (r), (Cnj [(Dsj [p, r]), (Dsj [q, r])])),
-                  ((p), (Cnj [q, r]), (Cnj [(Dsj [p, q]), (Dsj [p, r])]))]
+                  ((p), (Cnj [q, r]), (Cnj [(Dsj [p, q]), (Dsj [p, r])]))   ]
 
 -- combined CNF test cases
 allCNFTests = [(arrowfreetests, arrowfree, "ArrowFree"),
