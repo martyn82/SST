@@ -49,9 +49,10 @@ testF k = (testF' k composites)
                if s then return n
                else (testF' k ns)
 
--- Retrieves the smallest composite number that has passed the Fermat's primality check after testing n times.
+-- Retrieves the smallest composite number that passed the Fermat's primality check after testing n times.
 -- It turns out, if n is large enough (± 10,000), the smallest composite number that passes the test is 4.
--- The larger k, the larger the smallest number will be, but it also takes a lot more time to complete the test.
+-- The larger k, the larger the smallest number will be, therefore the larger k, the more accurate the check.
+-- But it also takes a lot more time to complete.
 testFSmallest :: Integer -> Int -> IO Integer
 testFSmallest n k = minM (testFSmallest' n k)
             where testFSmallest' 0 _ = []
@@ -110,4 +111,34 @@ testMRs n k = sequence $ testMRs' n k
         where testMRs' 0 _ = []
               testMRs' n k = (testMR k) : (testMRs' (n-1) k)
 
+-- Exercise 7.
+-- Tests whether 2^p-1 of prime p is also prime.
+mersenne :: Integer -> IO Bool
+mersenne 0 = error "p is not prime"
+mersenne 1 = return True
+mersenne p = do
+           isp <- primeMR 1 p
+           if isp then primeMR 1 (2^p-1)
+           else error "p is not prime"
+
+-- I have been naively pushing my machine to the max to find m26, however, my hardware wasn't sufficient.
+-- After several reboots, I managed to confirm the following.
+mersennes :: IO ()
+mersennes = mersennes' [m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,m21,m22,m23,m24,m25] 1
+    where mersennes' [] _     = print "Done"
+          mersennes' (p:ps) i = do
+                            isprime <- primeMR 1 p
+                            if isprime then do print ("OK: m" ++ show i)
+                            else do print ("FAIL: m" ++ show i ++ " is NOT a prime!")
+                            mersennes' ps (i+1)
+
+-- Will list all mersenne primes starting with number p.
+-- As long as memory is sufficient!!
+findmersenne :: Integer -> IO ()
+findmersenne p = findmersenne' (filter (> p) primes)
+    where findmersenne' []     = print "Done" -- stop condition, even though we iterate over an infinite list
+          findmersenne' (p:ps) = do
+                            ismersenne <- mersenne p
+                            when ismersenne (print ("2^" ++ show p ++ "-1 is Mersenne prime!"))
+                            findmersenne' ps
 
