@@ -50,3 +50,21 @@ modExpTest1b = exM m3 m4 m5
 
 modExpTest2a = expM m13 m14 m15
 modExpTest2b = exM m13 m14 m15
+
+-- Exercise 3: Change sieve to not throw away composites. Time spent: 3 hours.
+composites :: [Integer]
+composites = [c | (c,_) <- sieveC' (zip [2..] trues)]
+
+trues = True : trues
+
+-- Sieve with primes and composites.
+sieve' ((n,False):ns) = (n,False) : sieve' ns
+sieve' ((n,True):ns)  = (n,True)  : sieve' (map (mark n) ns)
+                        where mark i (m,p) | p         = (m, rem m i /= 0)
+                                           | otherwise = (m,p)
+
+-- Sieve with composites only
+sieveC' ((n,False):ns) = (n,False) : sieveC' ns
+sieveC' ((n,True):ns)  = sieveC' (map (mark n) ns)
+                         where mark i (m,p) | p         = (m, rem m i /= 0)
+                                            | otherwise = (m,p)
