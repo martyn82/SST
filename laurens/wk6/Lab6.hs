@@ -5,7 +5,7 @@ import Data.List
 import System.Random
 import Week6
 
-import Data.Bits
+import Control.Monad
 
 carmichael :: [Integer]
 carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
@@ -68,3 +68,29 @@ sieveC' ((n,False):ns) = (n,False) : sieveC' ns
 sieveC' ((n,True):ns)  = sieveC' (map (mark n) ns)
                          where mark i (m,p) | p         = (m, rem m i /= 0)
                                             | otherwise = (m,p)
+
+-- Exercise 4: Try to fool Fermat's primality check. Time spent 1 hour.
+testFs :: Int -> Int -> IO [Integer]
+testFs n k = sequence $ take n stream
+             where stream = (testF k) : stream
+
+testF :: Int -> IO Integer
+testF k = testF' k composites
+
+testF' :: Int -> [Integer] -> IO Integer
+testF' k (n:ns) = do b <- primeF k n
+                     if b
+                     then return n
+                     else testF' k ns
+
+-- Test results:
+-- As expected we got up to a higher composite number after doing more checks.
+-- The check of Fermat's is quite lame however. If he would neglect the 1, he
+-- would have stumbled upon 4 every time.
+--
+-- *Lab6> testFs 10 1
+-- [4,4,6,6,15,4,8,4,4,99]
+-- *Lab6> testFs 10 2
+-- [91,21,10,217,91,15,1729,15,9,2701]
+-- *Lab6> testFs 10 3
+-- [1247,15,91,561,2465,1729,1267,1045,1729,561]
