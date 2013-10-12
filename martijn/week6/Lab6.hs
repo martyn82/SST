@@ -19,7 +19,8 @@ exM' x y n = let
                 else rem (x*w) n
 
 -- Exercise 2.
--- the test
+-- Found it hard to really prove automatically.
+-- When doing some manual invocations and observe the response time, it is obvious that exM' is faster than expM, however.
 
 -- Exercise 3.
 -- Generates the list of composite numbers.
@@ -67,13 +68,46 @@ minM (x:y:ys)    = do
                     else minM (x:ys)
 
 -- Exercise 5.
-
--- Computes the carmichael numbers
+-- Computes the carmichael numbers.
+-- Carmichael numbers have the same property as what Fermat first defined as a prime property, but they are not prime.
+-- The numbers generated here should pass the Fermat's primality check.
 carmichael :: [Integer]
 carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
       k <- [2..], 
       isPrime (6*k+1), 
       isPrime (12*k+1), 
       isPrime (18*k+1) ]
+
+-- Tests the primeF Fermat's primality check against the carmichael (CM) numbers and returns the first number that passes the check.
+-- For k={1,2,3}: mostly 294409 (first CM number), sometimes 56052361 (second CM number)
+-- This could be due to the fact that the higher k the less likely it is that a carmichael number occurs.
+testFCM :: Int -> IO Integer
+testFCM k = (testF' k carmichael)
+    where testF' k (n:ns) = do
+                s <- primeF k n
+                if s then return n
+                else (testF' k ns)
+
+-- Produces a list of carmichael numbers that passed the testFCM test
+testFCMs :: Integer -> Int -> IO [Integer]
+testFCMs n k = sequence $ testFCMs' n k
+    where testFCMs' 0 _ = []
+          testFCMs' n k = (testFCM k) : (testFCMs' (n-1) k)
+
+-- Exercise 6.
+-- Test the Miller-Rabin primality check with carmichael numbers.
+-- There are still carmichael numbers that pass the Miller-Rabin primality check. It is very slow on larger k (even on k=3).
+testMR :: Int -> IO Integer
+testMR k = (testMR' k carmichael)
+    where testMR' k (n:ns) = do
+                        s <- primeMR k n
+                        if s then return n
+                        else (testMR' k ns)
+
+-- Runs n tests against testMR
+testMRs :: Integer -> Int -> IO [Integer]
+testMRs n k = sequence $ testMRs' n k
+        where testMRs' 0 _ = []
+              testMRs' n k = (testMR k) : (testMRs' (n-1) k)
 
 
