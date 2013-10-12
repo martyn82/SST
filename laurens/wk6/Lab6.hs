@@ -5,8 +5,6 @@ import Data.List
 import System.Random
 import Week6
 
-import Control.Monad
-
 carmichael :: [Integer]
 carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
       k <- [2..], 
