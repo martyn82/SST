@@ -5,13 +5,6 @@ import Data.List
 import System.Random
 import Week6
 
-carmichael :: [Integer]
-carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
-      k <- [2..], 
-      isPrime (6*k+1), 
-      isPrime (12*k+1), 
-      isPrime (18*k+1) ]
-
 -- Exercise 1: Implement a fast modular exponentation. Time spent 5 hours in understanding modular arithmetic and implementing these algorithms
 -- Idea 1, use bitwise representation of integer, and raise to each 2^p and mod that.
 exM' :: Integer -> Integer -> Integer -> Integer
@@ -70,10 +63,10 @@ sieveC' ((n,True):ns)  = sieveC' (map (mark n) ns)
 -- Exercise 4: Try to fool Fermat's primality check. Time spent 1 hour.
 testFs :: Int -> Int -> IO [Integer]
 testFs n k = sequence $ take n stream
-             where stream = (testF k) : stream
+             where stream = (testF k composites) : stream
 
-testF :: Int -> IO Integer
-testF k = testF' k composites
+testF :: Int -> [Integer] -> IO Integer
+testF k ns = testF' k ns
 
 testF' :: Int -> [Integer] -> IO Integer
 testF' k (n:ns) = do b <- primeF k n
@@ -92,3 +85,36 @@ testF' k (n:ns) = do b <- primeF k n
 -- [91,21,10,217,91,15,1729,15,9,2701]
 -- *Lab6> testFs 10 3
 -- [1247,15,91,561,2465,1729,1267,1045,1729,561]
+
+-- Exercise 5: Use the carmichael method to further test Fermat. Time spent 1 hour.
+carmichael :: [Integer]
+carmichael = [ (6*k+1)*(12*k+1)*(18*k+1) | 
+      k <- [2..], 
+      isPrime (6*k+1), 
+      isPrime (12*k+1), 
+      isPrime (18*k+1) ]
+
+testFCs :: Int -> Int -> IO [Integer]
+testFCs n k = sequence $ take n stream
+              where stream = (testF k carmichael) : stream
+
+-- Test results:
+-- As explained by the wiki page, these numbers most of the time bypass Fermat's test.
+-- This is shown in the test results:
+--
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [56052361,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+-- *Lab6> testFCs 10 1
+-- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
+--
+-- In some events however, the first number fails the test and a next number passes the test.
