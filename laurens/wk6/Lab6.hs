@@ -118,3 +118,30 @@ testFCs n k = sequence $ take n stream
 -- [294409,294409,294409,294409,294409,294409,294409,294409,294409,294409]
 --
 -- In some events however, the first number fails the test and a next number passes the test.
+
+-- Exercise 6: Miller-Rabin primality check of carmichael numbers. Time spent 1 hour.
+testMRs :: Int -> Int -> IO [Integer]
+testMRs n k = sequence $ take n stream
+              where stream = (testMR k carmichael) : stream
+
+testMR :: Int -> [Integer] -> IO Integer
+testMR k ns = testMR' k ns
+
+testMR' :: Int -> [Integer] -> IO Integer
+testMR' k (n:ns) = do b <- primeMR k n
+                      if b
+                      then return n
+                      else testMR' k ns
+
+-- Test results
+-- The Miller-Rabin is able to figure out that those carmichael numbers are no prime. It however does fail rather fast for low k's. So applying k>4 would be advised to find some large numbers that slip through the test.
+-- 
+-- *Lab6> testMRs 10 1
+-- [294409,56052361,173032371289,172947529,216821881,2301745249,27278026129,172947529,3711619793521,294409]
+-- *Lab6> testMRs 10 2
+-- [920153949774049,9203220800836849,14470947115561,959377262271049,8544361005001,3414146271409,1238966116844329,3296857440241,1339280649331561,9332984447209]
+-- *Lab6> testMRs 1 3
+-- [1746281192537521]
+-- *Lab6> testMRs 1 4
+-- [1225151403916168670761]
+
