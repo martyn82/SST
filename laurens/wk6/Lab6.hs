@@ -42,3 +42,11 @@ decomp' n = let (q,r) = n `divMod` 2
 --              if even y then w
 --              else multM x w n
 
+-- Exercise 2: Check that the implementation of exM is more efficient than that of expM. Time spent 1 hour.
+-- The trick in the faster algorithm lays in doing smaller calculations which are performed faster
+-- than large calculation. So the check efficiency. Just try some large numbers and view that expM is struggling while exM is instant.
+modExpTest1a = expM m3 m4 m5
+modExpTest1b = exM m3 m4 m5
+
+modExpTest2a = expM m13 m14 m15
+modExpTest2b = exM m13 m14 m15
