@@ -147,15 +147,15 @@ testMR' k (n:ns) = do b <- primeMR k n
 -- *Lab6> testMRs 1 4
 -- [1225151403916168670761]
 
--- Exercise 7: Finding some large Mersenne primes. Time spent 2 hours
--- TODO, improve by removing lame show method to return a list of Mersenne primes.
-mersenne k = mersenne' k primes
-     where mersenne' k (p:ps) = do
-              let m = 2^p - 1
-              b <- primeMR k m
-              when b (print ("M(" ++ show p ++ ")"))
-              mersenne' k ps
-
+-- Exercise 7: Finding some large Mersenne primes. Time spent 5 hours
+-- By using primeMR, which is slow.
+--mersenne = mersenne'
+--     where mersenne' k (p:ps) = do
+--              let m = 2^p - 1
+--              b <- primeMR k m
+--              when b (print ("M(" ++ show p ++ ")"))
+--              mersenne' k ps
+--
 -- *Lab6> mersenne 5
 -- "M(2)"
 -- "M(3)"
@@ -178,4 +178,12 @@ mersenne k = mersenne' k primes
 -- "M(4253)"
 -- "M(4423)"
 -- ^CInterrupted.
+
+-- By using Lucas-Lehmer, which is fast.
+mersenne = [p | p <- primes, primeLL p]
+
+primeLL 2 = True
+primeLL p = ll (2^p-1) (p-2) == 0
+            where ll m 0 = 4
+                  ll m n = ((ll m (n-1))^2-2) `mod` m
 
