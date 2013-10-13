@@ -178,3 +178,6 @@ findmersenne p = findmersenne' (filter (>= p) primes)
 -- "2^2281-1 is Mersenne prime!
 --
 -- The MR-test with k=1 was able to find all mersenne primes up to m17 without unreliable results (in our short experiment at least). That is amazing. It however is not to be trusted entirely, because it still might yield a prime that is no prime.
+--
+-- After a while the findMersenne method revealed the 26th mersenne prime:
+m26 = 2^23209-1
