@@ -148,7 +148,7 @@ testMR' k (n:ns) = do b <- primeMR k n
 -- [1225151403916168670761]
 
 -- Exercise 7: Finding some large Mersenne primes. Time spent 5 hours
--- By using primeMR, which is slow.
+-- By using primeMR, which is unsafe, but gets faster as the numbers get larger.
 --mersenne = mersenne'
 --     where mersenne' k (p:ps) = do
 --              let m = 2^p - 1
@@ -179,11 +179,14 @@ testMR' k (n:ns) = do b <- primeMR k n
 -- "M(4423)"
 -- ^CInterrupted.
 
--- By using Lucas-Lehmer, which is fast.
+-- By using Lucas-Lehmer, which is safe, and reasonably fast (for the first 25 mersenne numbers at least).
 mersenne = [p | p <- primes, primeLL p]
 
 primeLL 2 = True
 primeLL p = ll (2^p-1) (p-2) == 0
             where ll m 0 = 4
                   ll m n = ((ll m (n-1))^2-2) `mod` m
+
+-- *Lab6> take 26 mersenne 
+-- [2,3,5,7,13,17,19,31,61,89,107,127,521,607,1279,2203,2281,3217,4253,4423,9689,9941,11213...
 
