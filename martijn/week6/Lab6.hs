@@ -22,6 +22,7 @@ exM' x y n = let
 -- Found it hard to really prove automatically.
 -- When doing some manual invocations and observe the response time, it is obvious that exM' is faster than expM, however.
 
+
 -- Exercise 3.
 -- Generates the list of composite numbers.
 -- It takes the number part of all (integer,bool) pairs where the prime property is false
@@ -142,5 +143,5 @@ findmersenne p = findmersenne' (filter (>= p) primes)
                             when ismersenne (print ("2^" ++ show p ++ "-1 is Mersenne prime!"))
                             findmersenne' ps
 
--- New Mersennes:
+-- more Mersenne numbers:
 m26 = 2^23209-1
