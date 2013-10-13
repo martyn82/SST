@@ -132,11 +132,12 @@ mersennes = mersennes' [m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m
                             else do print ("FAIL: m" ++ show i ++ " is NOT a prime!")
                             mersennes' ps (i+1)
 
--- Will list all mersenne primes starting with number p.
+-- Will list all Mersenne primes starting with number p.
 findmersenne :: Integer -> IO ()
-findmersenne p = findmersenne' (filter (> p) primes)
+findmersenne p = findmersenne' (filter (>= p) primes)
     where findmersenne' []     = print "Done" -- stop condition, even though we iterate over an infinite list
           findmersenne' (p:ps) = do
+                            print ("Testing " ++ show p ++ "...")
                             ismersenne <- mersenne p
                             when ismersenne (print ("2^" ++ show p ++ "-1 is Mersenne prime!"))
                             findmersenne' ps
