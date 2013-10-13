@@ -8,7 +8,7 @@ import System.Random
 import Week6
 
 -- Exercise 1.
--- Algorithm for modular exponentiation of x^y mod n in polynomial time (repeatedly squaring modulo n)
+-- Algorithm for modular exponentiation of x^y mod n in polynomial time O(n^k) by repeatedly squaring modulo n.
 exM' :: Integer -> Integer -> Integer -> Integer
 exM' _ 0 _ = 1                          -- exponentiation by 0 always gives 1, by definition
 exM' x y n = let
@@ -142,3 +142,5 @@ findmersenne p = findmersenne' (filter (>= p) primes)
                             when ismersenne (print ("2^" ++ show p ++ "-1 is Mersenne prime!"))
                             findmersenne' ps
 
+-- New Mersennes:
+m26 = 2^23209-1
