@@ -16,19 +16,28 @@ import Logic
 -- VVZ': we have discussed this (above) and concluded that it is taken care by nnf
 -- VVZ: another counterexample: "cnf (Cnj [Cnj [p,q], q])"
 -- VVZ': we have discussed this (above) and concluded that it should be taken care by the flattener. Where is it?
-cnf :: Form -> Form
-cnf (Prop x)      = Prop x
-cnf (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs
-cnf (Cnj fs)      = Cnj $ flattenCnjs (Cnj fs)
-cnf (Dsj (f:fs))      = Dsj $ flattenDsjs (foldl dist (cnf f) (map cnf fs))
+cnf' :: Form -> Form
+cnf' (Prop x)      = Prop x
+cnf' (Neg(Prop x)) = Neg (Prop x) -- this one could be simplified, but this way we catch improper inputs
+cnf' (Cnj fs)      = Cnj (map cnf' fs)
+cnf' (Dsj (f:fs))  = foldl dist (cnf' f) (map cnf' fs)
+cnf' x             = x -- added default case, if Cnj/Dsj is empty or invalid input, do nothing
+
+-- Flatten the output of CNF
+cnf = flatten . cnf'
+
+flatten :: Form -> Form
+flatten (Cnj xs) = Cnj $ flattenCnjs (Cnj xs)
+flatten (Dsj xs) = Dsj $ flattenDsjs (Dsj xs)
+flatten x        = x 
 
 flattenCnjs :: Form -> [Form]
 flattenCnjs (Cnj xs)   = concat $ map flattenCnjs xs
-flattenCnjs x          = [cnf x]
+flattenCnjs x          = [flatten x]
 
 flattenDsjs :: Form -> [Form]
 flattenDsjs (Dsj xs)   = concat $ map flattenDsjs xs
-flattenDsjs x          = [cnf x]
+flattenDsjs x          = [flatten x]
 
 -- apply distributive law to two formulas in CNF
 -- precondition : inputs are arrow-free formulas in NNF
@@ -120,7 +129,8 @@ cnftests       = [(p           , p),
                   ((Cnj [Dsj [Dsj [p,q], q]]), (Cnj [Dsj [p,q,q]])),
                   ((Cnj [Dsj [Dsj [Dsj [p,q]]]]), (Cnj [Dsj [p, q]])),
                   ((Cnj [p, q]), (Cnj [p, q])),
-                  ((Dsj [p, q]), (Dsj [p, q]))]
+                  ((Dsj [p, q]), (Dsj [p, q])),
+                  ((Dsj [Cnj[p,q]]), (Cnj[p,q]))]
 
 				  
 --function to test CNF structure.
