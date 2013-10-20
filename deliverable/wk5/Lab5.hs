@@ -26,6 +26,7 @@ mergeSrtA :: Ord a => [a] -> [a]
 mergeSrtA = post1   sorted 
           $ assert1 intersectYieldsItself
           $ mergeSrt
+-- VVZ: aren't these two conditions equivalent?
 
 -- Exercise 2
 -- Another approach to merge sort is to start by splitting the list to be sorted in equal
@@ -179,6 +180,7 @@ runTestNrc = testMultiple nrc    [sudokuIsMinimal]    1
 --normal: 151 tests passed
 --nrc: 3 tests passed (after 1 hour)
 --nrc from laurens: 114 tests passed
+-- VVZ: ran overnight?
              
 testMultiple rs ps n = do s <- randomNode rs
                           if and [p rs s | p <- ps]
